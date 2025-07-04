@@ -1,0 +1,108 @@
+.app-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Custom animations */
+@keyframes slideInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-up {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Typography utilities */
+.text-heading {
+  font-family: 'Red Hat Display', sans-serif;
+  font-weight: 700;
+}
+
+.text-body {
+  font-family: 'Red Hat Display', sans-serif;
+  font-weight: 400;
+}
+
+/* Ensure all headings use the proper weight */
+h1, h2, h3, h4, h5, h6,
+.font-bold, .font-semibold, .font-medium {
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700 !important;
+}
+
+/* Ensure all paragraphs and body text use normal weight */
+p, span, div, label, button, input, textarea, select {
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+p {
+  font-weight: 400 !important;
+}
+
+/* Button and form element consistency */
+button, input, textarea, select {
+  font-weight: 400;
+}
+
+/* Maintain proper weights for specific elements */
+.font-light {
+  font-weight: 300 !important;
+}
+
+.font-normal {
+  font-weight: 400 !important;
+}
+
+.font-medium {
+  font-weight: 500 !important;
+}
+
+.font-semibold {
+  font-weight: 600 !important;
+}
+
+.font-bold {
+  font-weight: 700 !important;
+}
+
+.font-extrabold {
+  font-weight: 800 !important;
+}
+
+.font-black {
+  font-weight: 900 !important;
+}
