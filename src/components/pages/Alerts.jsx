@@ -22,9 +22,8 @@ const Alerts = () => {
   const filteredAlerts = allAlerts.filter(alert => {
     const matchesPriority = filterPriority === 'all' || alert.priority === filterPriority;
     const matchesType = filterType === 'all' || 
-                       (filterType === 'monitoring' && alert.source === 'monitoring') ||
-                       (filterType === 'system' && alert.source === 'system');
-    
+      (filterType === 'monitoring' && alert.source === 'monitoring') ||
+      (filterType === 'system' && alert.source === 'system');
     return matchesPriority && matchesType;
   });
 
@@ -196,15 +195,18 @@ const Alerts = () => {
               animate={{ opacity: 1 }}
               className="text-center py-16"
             >
-              <SafeIcon
-                icon={allAlerts.length === 0 ? FiCheckCircle : FiBell}
-                className="h-16 w-16 text-gray-400 mx-auto mb-4"
+              <SafeIcon 
+                icon={allAlerts.length === 0 ? FiCheckCircle : FiBell} 
+                className="h-16 w-16 text-gray-400 mx-auto mb-4" 
               />
               <h3 className="text-xl font-medium text-gray-900 mb-2">
-                {allAlerts.length === 0 ? 'All caught up!' : 'No alerts for this filter'}
+                {allAlerts.length === 0 
+                  ? 'All caught up!' 
+                  : 'No alerts for this filter'
+                }
               </h3>
               <p className="text-gray-600">
-                {allAlerts.length === 0
+                {allAlerts.length === 0 
                   ? 'You have no pending alerts. Great job staying on top of your IP portfolio!'
                   : 'Try selecting a different filter to see other alerts.'
                 }

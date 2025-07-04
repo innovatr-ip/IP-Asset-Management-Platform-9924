@@ -1,15 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
 import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiShield, FiHome, FiFolder, FiBell, FiSettings, FiUsers, FiCheckSquare, FiFileText, FiCalendar, FiEye, FiChevronDown, FiMenu } = FiIcons;
+const { FiShield, FiHome, FiFolder, FiBell, FiSettings, FiUsers, FiCheckSquare, FiFileText, FiCalendar, FiEye, FiChevronDown, FiMenu, FiLogOut, FiUser } = FiIcons;
 
 const Navbar = () => {
   const location = useLocation();
+  const { currentUser, logout } = useAuth();
   const [isManageOpen, setIsManageOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const profileRef = useRef(null);
 
   const manageItems = [
     { path: '/clients', icon: FiUsers, label: 'Clients' },
@@ -35,6 +40,9 @@ const Navbar = () => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsManageOpen(false);
       }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -42,6 +50,27 @@ const Navbar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const handleLogout = () => {
+    logout();
+    setIsProfileOpen(false);
+  };
+
+  const getInitials = (user) => {
+    if (!user) return 'U';
+    const firstName = user.firstName || '';
+    const lastName = user.lastName || '';
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || 'U';
+  };
+
+  const getRoleLabel = (role) => {
+    switch (role) {
+      case 'super_admin': return 'Super Admin';
+      case 'org_admin': return 'Organization Admin';
+      case 'end_user': return 'End User';
+      default: return 'User';
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-700 shadow-lg" style={{ backgroundColor: '#000018' }}>
@@ -51,16 +80,16 @@ const Navbar = () => {
           <Link to="/" className="flex items-center">
             <div className="relative">
               <img 
-                src="https://quest-media-storage-bucket.s3.us-east-2.amazonaws.com/1751635789797-innovatr.png"
-                alt="Innovatr"
-                className="h-8 w-auto"
-                style={{ height: '32px' }}
+                src="https://quest-media-storage-bucket.s3.us-east-2.amazonaws.com/1751635789797-innovatr.png" 
+                alt="Innovatr" 
+                className="h-8 w-auto" 
+                style={{ height: '32px' }} 
               />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
             </div>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-1">
             {mainNavItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -79,21 +108,15 @@ const Navbar = () => {
                     />
                   )}
                   <div className="relative flex items-center space-x-2">
-                    <SafeIcon
-                      icon={item.icon}
+                    <SafeIcon 
+                      icon={item.icon} 
                       className={`h-5 w-5 transition-colors ${
-                        isActive
-                          ? 'text-white'
-                          : 'text-gray-300 group-hover:text-white'
-                      }`}
+                        isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                      }`} 
                     />
-                    <span
-                      className={`text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'text-white'
-                          : 'text-gray-300 group-hover:text-white'
-                      }`}
-                    >
+                    <span className={`text-sm font-medium transition-colors ${
+                      isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                    }`}>
                       {item.label}
                     </span>
                   </div>
@@ -116,30 +139,22 @@ const Navbar = () => {
                   />
                 )}
                 <div className="relative flex items-center space-x-2">
-                  <SafeIcon
-                    icon={FiShield}
+                  <SafeIcon 
+                    icon={FiShield} 
                     className={`h-5 w-5 transition-colors ${
-                      isManageActive || isManageOpen
-                        ? 'text-white'
-                        : 'text-gray-300 group-hover:text-white'
-                    }`}
+                      isManageActive || isManageOpen ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                    }`} 
                   />
-                  <span
-                    className={`text-sm font-medium transition-colors ${
-                      isManageActive || isManageOpen
-                        ? 'text-white'
-                        : 'text-gray-300 group-hover:text-white'
-                    }`}
-                  >
+                  <span className={`text-sm font-medium transition-colors ${
+                    isManageActive || isManageOpen ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                  }`}>
                     Manage
                   </span>
-                  <SafeIcon
-                    icon={FiChevronDown}
+                  <SafeIcon 
+                    icon={FiChevronDown} 
                     className={`h-4 w-4 transition-all duration-200 ${
-                      isManageActive || isManageOpen
-                        ? 'text-white'
-                        : 'text-gray-300 group-hover:text-white'
-                    } ${isManageOpen ? 'rotate-180' : ''}`}
+                      isManageActive || isManageOpen ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                    } ${isManageOpen ? 'rotate-180' : ''}`} 
                   />
                 </div>
               </button>
@@ -164,8 +179,8 @@ const Navbar = () => {
                             to={item.path}
                             onClick={() => setIsManageOpen(false)}
                             className={`flex items-center space-x-3 px-4 py-3 transition-all duration-200 ${
-                              isActive
-                                ? 'bg-white bg-opacity-10 text-white'
+                              isActive 
+                                ? 'bg-white bg-opacity-10 text-white' 
                                 : 'text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white'
                             }`}
                           >
@@ -184,13 +199,160 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button className="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white hover:bg-opacity-10">
-              <SafeIcon icon={FiMenu} className="h-6 w-6" />
-            </button>
+          {/* Right Side - Profile Menu */}
+          <div className="flex items-center space-x-4">
+            {/* User Profile Dropdown */}
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              >
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                  {getInitials(currentUser)}
+                </div>
+                <div className="hidden md:block text-left">
+                  <div className="text-sm font-medium text-white">
+                    {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
+                  </div>
+                  <div className="text-xs text-gray-300">
+                    {currentUser?.email || 'user@example.com'}
+                  </div>
+                </div>
+                <SafeIcon 
+                  icon={FiChevronDown} 
+                  className={`h-4 w-4 text-gray-300 transition-transform duration-200 ${
+                    isProfileOpen ? 'rotate-180' : ''
+                  }`} 
+                />
+              </button>
+
+              {/* Profile Dropdown */}
+              <AnimatePresence>
+                {isProfileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full mt-2 right-0 w-64 rounded-xl shadow-xl border border-gray-700 overflow-hidden"
+                    style={{ backgroundColor: '#000018' }}
+                  >
+                    {/* Profile Header */}
+                    <div className="px-4 py-3 border-b border-gray-700">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
+                          {getInitials(currentUser)}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-white">
+                            {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
+                          </div>
+                          <div className="text-xs text-gray-300">
+                            {currentUser?.email || 'user@example.com'}
+                          </div>
+                          {currentUser?.role && (
+                            <div className="text-xs text-blue-400 capitalize">
+                              {getRoleLabel(currentUser.role)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Profile Menu Items */}
+                    <div className="py-2">
+                      <Link
+                        to="/settings"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white transition-all duration-200"
+                      >
+                        <SafeIcon icon={FiSettings} className="h-4 w-4" />
+                        <span className="text-sm font-medium">Settings</span>
+                      </Link>
+                      
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-red-500 hover:bg-opacity-10 hover:text-red-400 transition-all duration-200"
+                      >
+                        <SafeIcon icon={FiLogOut} className="h-4 w-4" />
+                        <span className="text-sm font-medium">Sign Out</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white hover:bg-opacity-10"
+              >
+                <SafeIcon icon={FiMenu} className="h-6 w-6" />
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden border-t border-gray-700 py-4"
+            >
+              <div className="space-y-2">
+                {mainNavItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-white bg-opacity-10 text-white' 
+                          : 'text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white'
+                      }`}
+                    >
+                      <SafeIcon icon={item.icon} className="h-5 w-5" />
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </Link>
+                  );
+                })}
+                
+                {/* Mobile Manage Section */}
+                <div className="border-t border-gray-700 pt-2 mt-2">
+                  <div className="px-4 py-2 text-xs font-medium text-gray-400 uppercase tracking-wide">
+                    Manage
+                  </div>
+                  {manageItems.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-white bg-opacity-10 text-white' 
+                            : 'text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white'
+                        }`}
+                      >
+                        <SafeIcon icon={item.icon} className="h-5 w-5" />
+                        <span className="text-sm font-medium">{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );

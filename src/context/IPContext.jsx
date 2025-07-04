@@ -40,9 +40,15 @@ export const IPProvider = ({ children }) => {
 
     if (savedAssets) {
       setAssets(JSON.parse(savedAssets));
+    } else {
+      // Initialize with sample data
+      initializeSampleData();
     }
     if (savedClients) {
       setClients(JSON.parse(savedClients));
+    } else {
+      // Initialize with sample clients
+      initializeSampleClients();
     }
     if (savedTasks) {
       setTasks(JSON.parse(savedTasks));
@@ -55,6 +61,9 @@ export const IPProvider = ({ children }) => {
     }
     if (savedMonitoringItems) {
       setMonitoringItems(JSON.parse(savedMonitoringItems));
+    } else {
+      // Initialize with sample monitoring
+      initializeSampleMonitoring();
     }
     if (savedMonitoringAlerts) {
       setMonitoringAlerts(JSON.parse(savedMonitoringAlerts));
@@ -63,6 +72,126 @@ export const IPProvider = ({ children }) => {
       setSettings(JSON.parse(savedSettings));
     }
   }, []);
+
+  // Initialize sample data for demonstration
+  const initializeSampleData = () => {
+    const sampleAssets = [
+      {
+        id: 'asset-1',
+        name: 'Innovatr Logo',
+        type: 'trademark',
+        description: 'Company logo trademark',
+        registrationNumber: 'US123456',
+        registrationDate: '2020-01-15',
+        expiryDate: '2025-02-15',
+        jurisdiction: 'United States',
+        status: 'active',
+        clientId: 'client-1',
+        createdAt: '2024-01-01T00:00:00.000Z'
+      },
+      {
+        id: 'asset-2',
+        name: 'TechFlow Patent',
+        type: 'patent',
+        description: 'Software process patent',
+        registrationNumber: 'US987654',
+        registrationDate: '2019-06-10',
+        expiryDate: '2024-12-31',
+        jurisdiction: 'United States',
+        status: 'active',
+        clientId: 'client-2',
+        createdAt: '2024-01-01T00:00:00.000Z'
+      }
+    ];
+    setAssets(sampleAssets);
+  };
+
+  const initializeSampleClients = () => {
+    const sampleClients = [
+      {
+        id: 'client-1',
+        name: 'TechCorp Inc.',
+        type: 'company',
+        company: 'TechCorp Inc.',
+        email: 'contact@techcorp.com',
+        phone: '+1-555-0123',
+        status: 'active',
+        createdAt: '2024-01-01T00:00:00.000Z'
+      },
+      {
+        id: 'client-2',
+        name: 'Innovation Labs',
+        type: 'company',
+        company: 'Innovation Labs LLC',
+        email: 'hello@innovationlabs.com',
+        phone: '+1-555-0456',
+        status: 'active',
+        createdAt: '2024-01-01T00:00:00.000Z'
+      }
+    ];
+    setClients(sampleClients);
+  };
+
+  const initializeSampleMonitoring = () => {
+    const sampleMonitoring = [
+      {
+        id: 'monitoring-1',
+        name: 'Innovatr Brand Protection',
+        type: 'trademark',
+        keywords: ['Innovatr', 'InnovatR'],
+        frequency: 'daily',
+        status: 'active',
+        notifications: true,
+        lastChecked: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        nextCheck: new Date(Date.now() + 22 * 60 * 60 * 1000).toISOString(),
+        alertCount: 2,
+        createdAt: '2024-01-01T00:00:00.000Z'
+      }
+    ];
+    setMonitoringItems(sampleMonitoring);
+
+    // Add sample monitoring alerts
+    const sampleMonitoringAlerts = [
+      {
+        id: 'mon-alert-1',
+        type: 'new_application',
+        priority: 'high',
+        title: 'New USPTO Application: INNOVATR TECH',
+        description: 'Similar trademark application filed',
+        keyword: 'Innovatr',
+        monitoringItemId: 'monitoring-1',
+        monitoringItemName: 'Innovatr Brand Protection',
+        detectedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+        data: {
+          serialNumber: '97123456',
+          applicantName: 'Tech Solutions LLC',
+          applicationDate: '2024-11-15',
+          markDescription: 'INNOVATR TECH',
+          goodsAndServices: 'Computer software; Technology consulting services'
+        },
+        actionRequired: 'Review application and consider opposition if needed'
+      },
+      {
+        id: 'mon-alert-2',
+        type: 'suspicious_listing',
+        priority: 'medium',
+        title: 'Suspicious Amazon Listing',
+        description: 'Product using similar branding detected',
+        keyword: 'Innovatr',
+        platform: 'Amazon',
+        monitoringItemId: 'monitoring-1',
+        monitoringItemName: 'Innovatr Brand Protection',
+        detectedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+        data: {
+          seller: 'TechGadgets123',
+          price: '$29.99',
+          url: 'https://amazon.com/listing/example'
+        },
+        actionRequired: 'Review listing and consider takedown request'
+      }
+    ];
+    setMonitoringAlerts(sampleMonitoringAlerts);
+  };
 
   // Save data to localStorage whenever they change
   useEffect(() => {
@@ -110,7 +239,7 @@ export const IPProvider = ({ children }) => {
       alertCount: 0,
     };
     setMonitoringItems(prev => [...prev, newItem]);
-    
+
     // Start monitoring immediately for trademark types
     if (newItem.type === 'trademark' && newItem.keywords.length > 0) {
       runManualCheck(newItem.id);
@@ -120,7 +249,7 @@ export const IPProvider = ({ children }) => {
   const updateMonitoringItem = (id, updatedItem) => {
     setMonitoringItems(prev =>
       prev.map(item =>
-        item.id === id 
+        item.id === id
           ? { ...item, ...updatedItem, lastUpdated: new Date().toISOString() }
           : item
       )
@@ -140,13 +269,14 @@ export const IPProvider = ({ children }) => {
     // Update status to checking
     setMonitoringItems(prev =>
       prev.map(m =>
-        m.id === id ? { ...m, status: 'checking' } : m
+        m.id === id
+          ? { ...m, status: 'checking' }
+          : m
       )
     );
 
     try {
       const result = await monitoringService.startMonitoring(item);
-      
       if (result.success) {
         // Update monitoring item with results
         setMonitoringItems(prev =>
@@ -179,7 +309,9 @@ export const IPProvider = ({ children }) => {
         // Update status to error
         setMonitoringItems(prev =>
           prev.map(m =>
-            m.id === id ? { ...m, status: 'error', lastError: result.error } : m
+            m.id === id
+              ? { ...m, status: 'error', lastError: result.error }
+              : m
           )
         );
       }
@@ -187,25 +319,11 @@ export const IPProvider = ({ children }) => {
       console.error('Manual check failed:', error);
       setMonitoringItems(prev =>
         prev.map(m =>
-          m.id === id ? { ...m, status: 'error', lastError: error.message } : m
+          m.id === id
+            ? { ...m, status: 'error', lastError: error.message }
+            : m
         )
       );
-    }
-  };
-
-  const getNextCheckTime = (frequency) => {
-    const now = new Date();
-    switch (frequency) {
-      case 'hourly':
-        return new Date(now.getTime() + 60 * 60 * 1000).toISOString();
-      case 'daily':
-        return new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
-      case 'weekly':
-        return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
-      case 'monthly':
-        return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
-      default:
-        return new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
     }
   };
 
@@ -224,11 +342,6 @@ export const IPProvider = ({ children }) => {
       totalAlerts: monitoringAlerts.length,
       activeMonitoring: monitoringItems.filter(item => item.status === 'active').length
     };
-  };
-
-  // Get all monitoring alerts
-  const getAllMonitoringAlerts = () => {
-    return monitoringAlerts.sort((a, b) => new Date(b.detectedAt) - new Date(a.detectedAt));
   };
 
   // Dismiss monitoring alert
@@ -307,8 +420,7 @@ export const IPProvider = ({ children }) => {
         const expiryDate = new Date(asset.expiryDate);
         const daysUntilExpiry = differenceInDays(expiryDate, today);
 
-        if (daysUntilExpiry >= -30 && daysUntilExpiry <= 365) {
-          // Show 30 days past to 1 year future
+        if (daysUntilExpiry >= -30 && daysUntilExpiry <= 365) { // Show 30 days past to 1 year future
           events.push({
             id: `asset-${asset.id}`,
             title: `${asset.name} Expires`,
@@ -542,9 +654,7 @@ export const IPProvider = ({ children }) => {
       }
     });
 
-    // Combine with monitoring alerts
-    const combinedAlerts = [...newAlerts, ...monitoringAlerts];
-    setAlerts(combinedAlerts);
+    setAlerts(newAlerts);
   };
 
   const dismissAlert = (alertId) => {
@@ -581,7 +691,7 @@ export const IPProvider = ({ children }) => {
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter(task => task.completed).length;
     const pendingTasks = totalTasks - completedTasks;
-    const overdueTasks = tasks.filter(task => 
+    const overdueTasks = tasks.filter(task =>
       !task.completed && task.dueDate && new Date(task.dueDate) < new Date()
     ).length;
 
@@ -643,7 +753,6 @@ export const IPProvider = ({ children }) => {
     deleteMonitoringItem,
     runManualCheck,
     getMonitoringStats,
-    getAllMonitoringAlerts,
     dismissMonitoringAlert,
     dismissAlert,
     updateSettings,

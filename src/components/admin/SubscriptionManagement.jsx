@@ -10,15 +10,7 @@ import * as FiIcons from 'react-icons/fi';
 const { FiPlus, FiSearch, FiEdit, FiPause, FiPlay, FiX, FiCreditCard, FiDollarSign } = FiIcons;
 
 const SubscriptionManagement = () => {
-  const { 
-    subscriptions, 
-    organizations, 
-    packages, 
-    cancelSubscription, 
-    suspendSubscription, 
-    updateSubscription 
-  } = useAuth();
-  
+  const { subscriptions, organizations, packages, cancelSubscription, suspendSubscription, updateSubscription } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -27,28 +19,19 @@ const SubscriptionManagement = () => {
   const filteredSubscriptions = subscriptions.filter(sub => {
     const org = organizations.find(o => o.id === sub.organizationId);
     const pkg = packages.find(p => p.id === sub.packageId);
-    
-    const matchesSearch = 
-      org?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pkg?.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch = org?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         pkg?.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || sub.status === filterStatus;
-
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-700';
-      case 'suspended':
-        return 'bg-red-100 text-red-700';
-      case 'cancelled':
-        return 'bg-gray-100 text-gray-700';
-      case 'past_due':
-        return 'bg-yellow-100 text-yellow-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
+      case 'active': return 'bg-green-100 text-green-700';
+      case 'suspended': return 'bg-red-100 text-red-700';
+      case 'cancelled': return 'bg-gray-100 text-gray-700';
+      case 'past_due': return 'bg-yellow-100 text-yellow-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -118,7 +101,7 @@ const SubscriptionManagement = () => {
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>
-
+          
           {/* Status Filter */}
           <select
             value={filterStatus}
@@ -131,7 +114,7 @@ const SubscriptionManagement = () => {
             <option value="cancelled">Cancelled</option>
             <option value="past_due">Past Due</option>
           </select>
-
+          
           {/* Total Count */}
           <div className="flex items-center justify-center bg-gray-50 rounded-lg px-4 py-3">
             <span className="text-sm text-gray-600">
@@ -172,7 +155,7 @@ const SubscriptionManagement = () => {
                 {filteredSubscriptions.map((subscription, index) => {
                   const org = organizations.find(o => o.id === subscription.organizationId);
                   const pkg = packages.find(p => p.id === subscription.packageId);
-
+                  
                   return (
                     <motion.tr
                       key={subscription.id}
@@ -212,9 +195,9 @@ const SubscriptionManagement = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {subscription.nextBillingDate ? 
-                          format(new Date(subscription.nextBillingDate), 'MMM dd, yyyy') : 
-                          'N/A'
+                        {subscription.nextBillingDate 
+                          ? format(new Date(subscription.nextBillingDate), 'MMM dd, yyyy')
+                          : 'N/A'
                         }
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -268,15 +251,14 @@ const SubscriptionManagement = () => {
       </div>
 
       {/* Modals */}
-      <AddSubscriptionModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+      <AddSubscriptionModal 
+        isOpen={showAddModal} 
+        onClose={() => setShowAddModal(false)} 
       />
-
-      <EditSubscriptionModal
-        isOpen={!!editingSubscription}
-        onClose={() => setEditingSubscription(null)}
-        subscription={editingSubscription}
+      <EditSubscriptionModal 
+        isOpen={!!editingSubscription} 
+        onClose={() => setEditingSubscription(null)} 
+        subscription={editingSubscription} 
       />
     </div>
   );

@@ -112,7 +112,6 @@ const MonitoringAlertCard = ({ alert }) => {
             )}
           </div>
         );
-      
       case 'domain_registration':
         return (
           <div className="mt-3 p-3 bg-white bg-opacity-50 rounded-lg">
@@ -123,7 +122,6 @@ const MonitoringAlertCard = ({ alert }) => {
             </div>
           </div>
         );
-      
       case 'suspicious_listing':
         return (
           <div className="mt-3 p-3 bg-white bg-opacity-50 rounded-lg">
@@ -132,9 +130,9 @@ const MonitoringAlertCard = ({ alert }) => {
               <div><span className="font-medium">Seller:</span> {alert.data.seller}</div>
               <div><span className="font-medium">Price:</span> {alert.data.price}</div>
               {alert.data.url && (
-                <a 
-                  href={alert.data.url} 
-                  target="_blank" 
+                <a
+                  href={alert.data.url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-700"
                 >
@@ -145,7 +143,6 @@ const MonitoringAlertCard = ({ alert }) => {
             </div>
           </div>
         );
-      
       case 'brand_mention':
         return (
           <div className="mt-3 p-3 bg-white bg-opacity-50 rounded-lg">
@@ -165,7 +162,6 @@ const MonitoringAlertCard = ({ alert }) => {
             </div>
           </div>
         );
-      
       default:
         return null;
     }
@@ -195,36 +191,29 @@ const MonitoringAlertCard = ({ alert }) => {
                 🔍 {alert.monitoringItemName}
               </span>
             </div>
-            
             <h3 className={`font-medium ${config.textColor} mb-1`}>
               {alert.title}
             </h3>
-            
             <p className={`text-sm ${config.textColor} opacity-90 mb-2`}>
               {alert.description}
             </p>
-
             {alert.keyword && (
               <p className="text-xs text-gray-600 mb-2">
                 <span className="font-medium">Triggered by keyword:</span> "{alert.keyword}"
               </p>
             )}
-
             {alert.actionRequired && (
               <div className="mt-3 p-2 bg-white bg-opacity-60 rounded-lg">
                 <p className="text-xs font-medium text-gray-800">Recommended Action:</p>
                 <p className="text-xs text-gray-600 mt-1">{alert.actionRequired}</p>
               </div>
             )}
-
             {renderAlertDetails()}
-            
             <p className="text-xs text-gray-500 mt-3">
               Detected: {format(new Date(alert.detectedAt), 'MMM dd, yyyy HH:mm')}
             </p>
           </div>
         </div>
-        
         <button
           onClick={() => dismissMonitoringAlert(alert.id)}
           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200"
