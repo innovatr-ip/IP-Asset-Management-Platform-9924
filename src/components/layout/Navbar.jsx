@@ -22,9 +22,9 @@ const Navbar = () => {
     { path: '/matters', icon: FiFileText, label: 'Matters' },
     { path: '/tasks', icon: FiCheckSquare, label: 'Tasks' },
     // Add Employees for org admins and super admins
-    ...(currentUser?.role === 'org_admin' || currentUser?.role === 'super_admin' 
-      ? [{ path: '/employees', icon: FiUsers, label: 'Employees' }] 
-      : [])
+    ...(currentUser?.role === 'org_admin' || currentUser?.role === 'super_admin' ? [
+      { path: '/employees', icon: FiUsers, label: 'Employees' }
+    ] : [])
   ];
 
   const mainNavItems = [
@@ -71,36 +71,28 @@ const Navbar = () => {
 
   const getRoleLabel = (role) => {
     switch (role) {
-      case 'super_admin':
-        return 'Super Admin';
-      case 'org_admin':
-        return 'Organization Admin';
-      case 'end_user':
-        return 'End User';
-      default:
-        return 'User';
+      case 'super_admin': return 'Super Admin';
+      case 'org_admin': return 'Organization Admin';
+      case 'end_user': return 'End User';
+      default: return 'User';
     }
   };
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
-      case 'super_admin':
-        return 'bg-red-100 text-red-700';
-      case 'org_admin':
-        return 'bg-blue-100 text-blue-700';
-      case 'end_user':
-        return 'bg-green-100 text-green-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
+      case 'super_admin': return 'bg-red-100 text-red-700';
+      case 'org_admin': return 'bg-blue-100 text-blue-700';
+      case 'end_user': return 'bg-green-100 text-green-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-700 shadow-lg" style={{ backgroundColor: '#000018' }}>
+    <nav className="fixed top-0 left-0 right-0 z-50 navbar-blur shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center space-x-3">
             <div className="relative">
               <img
                 src="https://quest-media-storage-bucket.s3.us-east-2.amazonaws.com/1751635789797-innovatr.png"
@@ -194,8 +186,7 @@ const Navbar = () => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-full mt-2 right-0 w-48 rounded-xl shadow-xl border border-gray-700"
-                    style={{ backgroundColor: '#000018' }}
+                    className="absolute top-full mt-2 right-0 w-48 rounded-xl shadow-xl border border-gray-200 bg-white"
                   >
                     <div className="py-2">
                       {manageItems.map((item, index) => {
@@ -207,14 +198,14 @@ const Navbar = () => {
                             onClick={() => setIsManageOpen(false)}
                             className={`flex items-center space-x-3 px-4 py-3 transition-all duration-200 ${
                               isActive
-                                ? 'bg-white bg-opacity-10 text-white'
-                                : 'text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white'
+                                ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-500'
+                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                             }`}
                           >
                             <SafeIcon icon={item.icon} className="h-4 w-4" />
                             <span className="text-sm font-medium">{item.label}</span>
                             {isActive && (
-                              <div className="ml-auto w-2 h-2 bg-green-400 rounded-full"></div>
+                              <div className="ml-auto w-2 h-2 bg-primary-500 rounded-full"></div>
                             )}
                           </Link>
                         );
@@ -262,11 +253,10 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute top-full mt-2 right-0 w-80 rounded-xl shadow-xl border border-gray-700 overflow-hidden"
-                      style={{ backgroundColor: '#000018' }}
+                      className="absolute top-full mt-2 right-0 w-80 rounded-xl shadow-xl border border-gray-200 overflow-hidden bg-white"
                     >
                       {/* Profile Header */}
-                      <div className="px-6 py-4 border-b border-gray-700 bg-gradient-to-r from-blue-600 to-purple-600">
+                      <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-purple-600">
                         <div className="flex items-center space-x-4">
                           <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white font-bold text-lg">
                             {getInitials(currentUser)}
@@ -295,15 +285,15 @@ const Navbar = () => {
                         <Link
                           to="/settings"
                           onClick={() => setIsProfileOpen(false)}
-                          className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white transition-all duration-200"
+                          className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
                         >
                           <SafeIcon icon={FiSettings} className="h-4 w-4" />
                           <span className="text-sm font-medium">Account Settings</span>
                         </Link>
-                        <div className="border-t border-gray-700 my-2"></div>
+                        <div className="border-t border-gray-200 my-2"></div>
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-red-500 hover:bg-opacity-10 hover:text-red-400 transition-all duration-200"
+                          className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
                         >
                           <SafeIcon icon={FiLogOut} className="h-4 w-4" />
                           <span className="text-sm font-medium">Sign Out</span>
@@ -311,8 +301,8 @@ const Navbar = () => {
                       </div>
 
                       {/* Footer */}
-                      <div className="px-4 py-3 bg-gray-800 bg-opacity-50 border-t border-gray-700">
-                        <div className="flex items-center justify-between text-xs text-gray-400">
+                      <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                        <div className="flex items-center justify-between text-xs text-gray-500">
                           <span>Last login:</span>
                           <span>
                             {currentUser?.lastLogin
@@ -358,7 +348,7 @@ const Navbar = () => {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="md:hidden border-t border-gray-700 py-4"
+              className="md:hidden border-t border-gray-600 py-4 bg-gray-900 bg-opacity-95"
             >
               <div className="space-y-2">
                 {/* Mobile Auth Section */}
@@ -400,7 +390,7 @@ const Navbar = () => {
                 })}
 
                 {/* Mobile Manage Section */}
-                <div className="border-t border-gray-700 pt-2 mt-2">
+                <div className="border-t border-gray-600 pt-2 mt-2">
                   <div className="px-4 py-2 text-xs font-medium text-gray-400 uppercase tracking-wide">
                     Manage
                   </div>
@@ -426,7 +416,7 @@ const Navbar = () => {
 
                 {/* Mobile Logout */}
                 {currentUser && (
-                  <div className="border-t border-gray-700 pt-2 mt-2">
+                  <div className="border-t border-gray-600 pt-2 mt-2">
                     <button
                       onClick={() => {
                         setIsMobileMenuOpen(false);
