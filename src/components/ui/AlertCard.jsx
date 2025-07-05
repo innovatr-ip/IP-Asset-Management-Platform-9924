@@ -5,7 +5,7 @@ import { useIP } from '../../context/IPContext';
 import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiX, FiAlertTriangle, FiClock, FiRefreshCw } = FiIcons;
+const { FiX, FiAlertTriangle, FiClock, FiRefreshCw, FiFolder, FiFileText } = FiIcons;
 
 const AlertCard = ({ alert }) => {
   const { dismissAlert } = useIP();
@@ -59,61 +59,83 @@ const AlertCard = ({ alert }) => {
 
   const getTypeIcon = (type) => {
     switch (type) {
-      case 'expiry': return FiAlertTriangle;
-      case 'renewal': return FiRefreshCw;
-      case 'overdue': return FiAlertTriangle;
-      case 'matter-deadline': return FiClock;
-      case 'matter-overdue': return FiAlertTriangle;
-      default: return FiClock;
+      case 'expiry':
+      case 'overdue':
+        return FiFolder;
+      case 'renewal':
+        return FiRefreshCw;
+      case 'matter-deadline':
+      case 'matter-overdue':
+        return FiFileText;
+      default:
+        return FiClock;
     }
   };
 
   const getTypeLabel = (type) => {
     switch (type) {
-      case 'expiry': return 'EXPIRY';
-      case 'renewal': return 'RENEWAL';
-      case 'overdue': return 'OVERDUE';
-      case 'matter-deadline': return 'MATTER DEADLINE';
-      case 'matter-overdue': return 'MATTER OVERDUE';
-      default: return type?.toUpperCase() || 'ALERT';
+      case 'expiry':
+        return 'EXPIRY';
+      case 'renewal':
+        return 'RENEWAL';
+      case 'overdue':
+        return 'OVERDUE';
+      case 'matter-deadline':
+        return 'MATTER DEADLINE';
+      case 'matter-overdue':
+        return 'MATTER OVERDUE';
+      default:
+        return type?.toUpperCase() || 'ALERT';
     }
   };
+
+  if (!alert) {
+    return null;
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className={`${config.bgColor} border rounded-xl p-6 shadow-sm`}
+      className={`${config.bgColor} border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200`}
     >
       <div className="flex items-start justify-between">
-        <div className="flex items-start space-x-4">
+        <div className="flex items-start space-x-4 flex-1">
           <div className={`p-2 bg-white rounded-lg ${config.iconColor}`}>
             <SafeIcon icon={getTypeIcon(alert.type)} className="h-5 w-5" />
           </div>
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-2">
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.badgeColor}`}>
-                {alert.priority.toUpperCase()}
+                {alert.priority?.toUpperCase() || 'NORMAL'}
               </span>
               <span className={`px-2 py-1 rounded-full text-xs font-medium bg-white ${config.textColor}`}>
                 {getTypeLabel(alert.type)}
               </span>
             </div>
             <h3 className={`font-medium ${config.textColor} mb-1`}>
-              {alert.assetName || alert.matterTitle || 'Alert'}
+              {alert.assetName || alert.matterTitle || alert.title || 'Alert'}
             </h3>
             <p className={`text-sm ${config.textColor} opacity-90 mb-2`}>
-              {alert.message}
+              {alert.message || alert.description || 'No description available'}
             </p>
-            <p className="text-xs text-gray-500">
-              Alert created: {format(new Date(alert.createdAt), 'MMM dd, yyyy HH:mm')}
+            {alert.daysRemaining !== undefined && (
+              <p className={`text-xs ${config.textColor} opacity-75`}>
+                {alert.daysRemaining >= 0 
+                  ? `${alert.daysRemaining} days remaining`
+                  : `${Math.abs(alert.daysRemaining)} days overdue`
+                }
+              </p>
+            )}
+            <p className="text-xs text-gray-500 mt-2">
+              Alert created: {format(new Date(alert.createdAt || Date.now()), 'MMM dd, yyyy HH:mm')}
             </p>
           </div>
         </div>
         <button
           onClick={() => dismissAlert(alert.id)}
-          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200"
+          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 flex-shrink-0"
         >
           <SafeIcon icon={FiX} className="h-4 w-4" />
         </button>

@@ -71,6 +71,10 @@ const MonitoringAlertCard = ({ alert }) => {
     }
   };
 
+  if (!alert) {
+    return null;
+  }
+
   const config = getPriorityConfig(alert.priority);
   const TypeIcon = getTypeIcon(alert.type);
 
@@ -95,12 +99,14 @@ const MonitoringAlertCard = ({ alert }) => {
               )}
               {alert.data.applicationDate && (
                 <div>
-                  <span className="font-medium">Filed:</span> {format(new Date(alert.data.applicationDate), 'MMM dd, yyyy')}
+                  <span className="font-medium">Filed:</span>{' '}
+                  {format(new Date(alert.data.applicationDate), 'MMM dd, yyyy')}
                 </div>
               )}
               {alert.data.similarity && (
                 <div>
-                  <span className="font-medium">Similarity:</span> {Math.round(alert.data.similarity * 100)}%
+                  <span className="font-medium">Similarity:</span>{' '}
+                  {Math.round(alert.data.similarity * 100)}%
                 </div>
               )}
             </div>
@@ -112,6 +118,7 @@ const MonitoringAlertCard = ({ alert }) => {
             )}
           </div>
         );
+
       case 'domain_registration':
         return (
           <div className="mt-3 p-3 bg-white bg-opacity-50 rounded-lg">
@@ -122,6 +129,7 @@ const MonitoringAlertCard = ({ alert }) => {
             </div>
           </div>
         );
+
       case 'suspicious_listing':
         return (
           <div className="mt-3 p-3 bg-white bg-opacity-50 rounded-lg">
@@ -143,6 +151,7 @@ const MonitoringAlertCard = ({ alert }) => {
             </div>
           </div>
         );
+
       case 'brand_mention':
         return (
           <div className="mt-3 p-3 bg-white bg-opacity-50 rounded-lg">
@@ -162,6 +171,7 @@ const MonitoringAlertCard = ({ alert }) => {
             </div>
           </div>
         );
+
       default:
         return null;
     }
@@ -172,7 +182,7 @@ const MonitoringAlertCard = ({ alert }) => {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className={`${config.bgColor} border rounded-xl p-6 shadow-sm`}
+      className={`${config.bgColor} border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200`}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-4 flex-1">
@@ -182,20 +192,20 @@ const MonitoringAlertCard = ({ alert }) => {
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-2">
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.badgeColor}`}>
-                {alert.priority.toUpperCase()}
+                {alert.priority?.toUpperCase() || 'NORMAL'}
               </span>
               <span className={`px-2 py-1 rounded-full text-xs font-medium bg-white ${config.textColor}`}>
-                {alert.type.replace('_', ' ').toUpperCase()}
+                {alert.type?.replace('_', ' ').toUpperCase() || 'MONITORING'}
               </span>
               <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                🔍 {alert.monitoringItemName}
+                🔍 {alert.monitoringItemName || 'Brand Monitor'}
               </span>
             </div>
             <h3 className={`font-medium ${config.textColor} mb-1`}>
-              {alert.title}
+              {alert.title || 'Monitoring Alert'}
             </h3>
             <p className={`text-sm ${config.textColor} opacity-90 mb-2`}>
-              {alert.description}
+              {alert.description || 'No description available'}
             </p>
             {alert.keyword && (
               <p className="text-xs text-gray-600 mb-2">
@@ -210,13 +220,13 @@ const MonitoringAlertCard = ({ alert }) => {
             )}
             {renderAlertDetails()}
             <p className="text-xs text-gray-500 mt-3">
-              Detected: {format(new Date(alert.detectedAt), 'MMM dd, yyyy HH:mm')}
+              Detected: {format(new Date(alert.detectedAt || alert.createdAt || Date.now()), 'MMM dd, yyyy HH:mm')}
             </p>
           </div>
         </div>
         <button
           onClick={() => dismissMonitoringAlert(alert.id)}
-          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200"
+          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 flex-shrink-0"
         >
           <SafeIcon icon={FiX} className="h-4 w-4" />
         </button>
