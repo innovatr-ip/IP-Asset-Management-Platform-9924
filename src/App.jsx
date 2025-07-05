@@ -1,6 +1,6 @@
-import React,{useState,useEffect} from 'react';
-import {HashRouter as Router,Routes,Route,Navigate} from 'react-router-dom';
-import {motion,AnimatePresence} from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Dashboard from './components/pages/Dashboard';
@@ -12,16 +12,17 @@ import Tasks from './components/pages/Tasks';
 import Calendar from './components/pages/Calendar';
 import Alerts from './components/pages/Alerts';
 import Settings from './components/pages/Settings';
+import Employees from './components/pages/Employees';
 import LoginForm from './components/auth/LoginForm';
 import SuperAdminDashboard from './components/admin/SuperAdminDashboard';
-import {IPProvider} from './context/IPContext';
-import {AuthProvider,useAuth} from './context/AuthContext';
+import { IPProvider } from './context/IPContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
 
 // Protected Route Component
-const ProtectedRoute = ({children}) => {
-  const {currentUser, isLoading} = useAuth();
-  
+const ProtectedRoute = ({ children }) => {
+  const { currentUser, isLoading } = useAuth();
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
@@ -29,17 +30,17 @@ const ProtectedRoute = ({children}) => {
       </div>
     );
   }
-  
+
   if (!currentUser) {
     return <LoginForm onLoginSuccess={() => {}} />;
   }
-  
+
   return children;
 };
 
 // Main App Content Component
 const AppContent = () => {
-  const {currentUser} = useAuth();
+  const { currentUser } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
 
   // If user is super admin, show admin interface
@@ -59,122 +60,135 @@ const AppContent = () => {
         <main className="pt-16 flex-grow">
           <AnimatePresence mode="wait">
             <Routes>
-              <Route 
-                path="/" 
+              <Route
+                path="/"
                 element={
                   <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    exit={{opacity: 0, y: -20}}
-                    transition={{duration: 0.3}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <Dashboard />
                   </motion.div>
-                } 
+                }
               />
-              <Route 
-                path="/assets" 
+              <Route
+                path="/assets"
                 element={
                   <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    exit={{opacity: 0, y: -20}}
-                    transition={{duration: 0.3}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <IPAssets />
                   </motion.div>
-                } 
+                }
               />
-              <Route 
-                path="/monitoring" 
+              <Route
+                path="/monitoring"
                 element={
                   <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    exit={{opacity: 0, y: -20}}
-                    transition={{duration: 0.3}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <BrandMonitoring />
                   </motion.div>
-                } 
+                }
               />
-              <Route 
-                path="/clients" 
+              <Route
+                path="/clients"
                 element={
                   <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    exit={{opacity: 0, y: -20}}
-                    transition={{duration: 0.3}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <Clients />
                   </motion.div>
-                } 
+                }
               />
-              <Route 
-                path="/matters" 
+              <Route
+                path="/matters"
                 element={
                   <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    exit={{opacity: 0, y: -20}}
-                    transition={{duration: 0.3}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <Matters />
                   </motion.div>
-                } 
+                }
               />
-              <Route 
-                path="/tasks" 
+              <Route
+                path="/tasks"
                 element={
                   <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    exit={{opacity: 0, y: -20}}
-                    transition={{duration: 0.3}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <Tasks />
                   </motion.div>
-                } 
+                }
               />
-              <Route 
-                path="/calendar" 
+              <Route
+                path="/calendar"
                 element={
                   <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    exit={{opacity: 0, y: -20}}
-                    transition={{duration: 0.3}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <Calendar />
                   </motion.div>
-                } 
+                }
               />
-              <Route 
-                path="/alerts" 
+              <Route
+                path="/alerts"
                 element={
                   <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    exit={{opacity: 0, y: -20}}
-                    transition={{duration: 0.3}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <Alerts />
                   </motion.div>
-                } 
+                }
               />
-              <Route 
-                path="/settings" 
+              <Route
+                path="/settings"
                 element={
                   <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    exit={{opacity: 0, y: -20}}
-                    transition={{duration: 0.3}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <Settings />
                   </motion.div>
-                } 
+                }
+              />
+              <Route
+                path="/employees"
+                element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Employees />
+                  </motion.div>
+                }
               />
             </Routes>
           </AnimatePresence>

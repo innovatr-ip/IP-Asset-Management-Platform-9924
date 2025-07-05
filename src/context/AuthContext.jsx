@@ -29,15 +29,22 @@ export const AuthProvider = ({ children }) => {
     if (savedCurrentUser) {
       setCurrentUser(JSON.parse(savedCurrentUser));
     }
+
     if (savedUsers) {
       setUsers(JSON.parse(savedUsers));
     }
+
     if (savedOrganizations) {
       setOrganizations(JSON.parse(savedOrganizations));
+    } else {
+      // Initialize default organizations
+      initializeDefaultOrganizations();
     }
+
     if (savedSubscriptions) {
       setSubscriptions(JSON.parse(savedSubscriptions));
     }
+
     if (savedPackages) {
       setPackages(JSON.parse(savedPackages));
     } else {
@@ -75,6 +82,26 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('auth-packages', JSON.stringify(packages));
   }, [packages]);
+
+  const initializeDefaultOrganizations = () => {
+    const defaultOrg = {
+      id: 'org-default',
+      name: 'Innovatr Demo Organization',
+      domain: 'innovatr.com',
+      contactEmail: 'admin@innovatr.com',
+      contactPhone: '+1-555-0123',
+      address: '123 Innovation Street, Tech City, TC 12345',
+      description: 'Demo organization for Innovatr IP management platform',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      settings: {
+        allowSelfRegistration: false,
+        requireApproval: true
+      }
+    };
+
+    setOrganizations([defaultOrg]);
+  };
 
   const initializeSuperAdmin = () => {
     const superAdmin = {
@@ -175,8 +202,12 @@ export const AuthProvider = ({ children }) => {
   // Authentication functions
   const login = (email, password) => {
     const user = users.find(u => u.email === email && u.password === password && u.status === 'active');
+    
     if (user) {
-      const updatedUser = { ...user, lastLogin: new Date().toISOString() };
+      const updatedUser = {
+        ...user,
+        lastLogin: new Date().toISOString()
+      };
       setCurrentUser(updatedUser);
       
       // Update user's last login
@@ -184,6 +215,7 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true, user: updatedUser };
     }
+    
     return { success: false, error: 'Invalid credentials or account suspended' };
   };
 
@@ -199,7 +231,7 @@ export const AuthProvider = ({ children }) => {
       id: `user-${Date.now()}`,
       createdAt: new Date().toISOString(),
       lastLogin: null,
-      status: 'active'
+      status: userData.status || 'active'
     };
 
     setUsers(prev => [...prev, newUser]);
@@ -208,7 +240,9 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = (userId, updates) => {
     setUsers(prev => prev.map(user => 
-      user.id === userId ? { ...user, ...updates, updatedAt: new Date().toISOString() } : user
+      user.id === userId 
+        ? { ...user, ...updates, updatedAt: new Date().toISOString() }
+        : user
     ));
   };
 
@@ -244,7 +278,9 @@ export const AuthProvider = ({ children }) => {
 
   const updateOrganization = (orgId, updates) => {
     setOrganizations(prev => prev.map(org => 
-      org.id === orgId ? { ...org, ...updates, updatedAt: new Date().toISOString() } : org
+      org.id === orgId 
+        ? { ...org, ...updates, updatedAt: new Date().toISOString() }
+        : org
     ));
   };
 
@@ -281,21 +317,23 @@ export const AuthProvider = ({ children }) => {
 
   const updateSubscription = (subId, updates) => {
     setSubscriptions(prev => prev.map(sub => 
-      sub.id === subId ? { ...sub, ...updates, updatedAt: new Date().toISOString() } : sub
+      sub.id === subId 
+        ? { ...sub, ...updates, updatedAt: new Date().toISOString() }
+        : sub
     ));
   };
 
   const cancelSubscription = (subId) => {
     updateSubscription(subId, { 
-      status: 'cancelled', 
-      cancelledAt: new Date().toISOString() 
+      status: 'cancelled',
+      cancelledAt: new Date().toISOString()
     });
   };
 
   const suspendSubscription = (subId) => {
     updateSubscription(subId, { 
-      status: 'suspended', 
-      suspendedAt: new Date().toISOString() 
+      status: 'suspended',
+      suspendedAt: new Date().toISOString()
     });
   };
 
@@ -314,7 +352,9 @@ export const AuthProvider = ({ children }) => {
 
   const updatePackage = (pkgId, updates) => {
     setPackages(prev => prev.map(pkg => 
-      pkg.id === pkgId ? { ...pkg, ...updates, updatedAt: new Date().toISOString() } : pkg
+      pkg.id === pkgId 
+        ? { ...pkg, ...updates, updatedAt: new Date().toISOString() }
+        : pkg
     ));
   };
 
@@ -391,42 +431,42 @@ export const AuthProvider = ({ children }) => {
     // Auth state
     currentUser,
     isLoading,
-    
+
     // Data
     users,
     organizations,
     subscriptions,
     packages,
-    
+
     // Auth functions
     login,
     logout,
-    
+
     // User management
     createUser,
     updateUser,
     suspendUser,
     activateUser,
     deleteUser,
-    
+
     // Organization management
     createOrganization,
     updateOrganization,
     deleteOrganization,
     getUsersByOrganization,
-    
+
     // Subscription management
     createSubscription,
     updateSubscription,
     cancelSubscription,
     suspendSubscription,
     getOrganizationSubscription,
-    
+
     // Package management
     createPackage,
     updatePackage,
     deletePackage,
-    
+
     // Utility functions
     hasPermission,
     isWithinLimits,

@@ -21,6 +21,10 @@ const Navbar = () => {
     { path: '/assets', icon: FiFolder, label: 'IP Assets' },
     { path: '/matters', icon: FiFileText, label: 'Matters' },
     { path: '/tasks', icon: FiCheckSquare, label: 'Tasks' },
+    // Add Employees for org admins and super admins
+    ...(currentUser?.role === 'org_admin' || currentUser?.role === 'super_admin' 
+      ? [{ path: '/employees', icon: FiUsers, label: 'Employees' }] 
+      : [])
   ];
 
   const mainNavItems = [
@@ -67,35 +71,42 @@ const Navbar = () => {
 
   const getRoleLabel = (role) => {
     switch (role) {
-      case 'super_admin': return 'Super Admin';
-      case 'org_admin': return 'Organization Admin';
-      case 'end_user': return 'End User';
-      default: return 'User';
+      case 'super_admin':
+        return 'Super Admin';
+      case 'org_admin':
+        return 'Organization Admin';
+      case 'end_user':
+        return 'End User';
+      default:
+        return 'User';
     }
   };
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
-      case 'super_admin': return 'bg-red-100 text-red-700';
-      case 'org_admin': return 'bg-blue-100 text-blue-700';
-      case 'end_user': return 'bg-green-100 text-green-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'super_admin':
+        return 'bg-red-100 text-red-700';
+      case 'org_admin':
+        return 'bg-blue-100 text-blue-700';
+      case 'end_user':
+        return 'bg-green-100 text-green-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-700 shadow-lg"
-         style={{ backgroundColor: '#000018' }}>
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-700 shadow-lg" style={{ backgroundColor: '#000018' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <div className="relative">
-              <img 
-                src="https://quest-media-storage-bucket.s3.us-east-2.amazonaws.com/1751635789797-innovatr.png" 
-                alt="Innovatr" 
-                className="h-8 w-auto" 
-                style={{ height: '32px' }} 
+              <img
+                src="https://quest-media-storage-bucket.s3.us-east-2.amazonaws.com/1751635789797-innovatr.png"
+                alt="Innovatr"
+                className="h-8 w-auto"
+                style={{ height: '32px' }}
               />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
             </div>
@@ -120,19 +131,17 @@ const Navbar = () => {
                     />
                   )}
                   <div className="relative flex items-center space-x-2">
-                    <SafeIcon 
-                      icon={item.icon} 
+                    <SafeIcon
+                      icon={item.icon}
                       className={`h-5 w-5 transition-colors ${
-                        isActive 
-                          ? 'text-white' 
-                          : 'text-gray-300 group-hover:text-white'
-                      }`} 
+                        isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                      }`}
                     />
-                    <span className={`text-sm font-medium transition-colors ${
-                      isActive 
-                        ? 'text-white' 
-                        : 'text-gray-300 group-hover:text-white'
-                    }`}>
+                    <span
+                      className={`text-sm font-medium transition-colors ${
+                        isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                      }`}
+                    >
                       {item.label}
                     </span>
                   </div>
@@ -155,28 +164,24 @@ const Navbar = () => {
                   />
                 )}
                 <div className="relative flex items-center space-x-2">
-                  <SafeIcon 
-                    icon={FiShield} 
+                  <SafeIcon
+                    icon={FiShield}
                     className={`h-5 w-5 transition-colors ${
-                      isManageActive || isManageOpen 
-                        ? 'text-white' 
-                        : 'text-gray-300 group-hover:text-white'
-                    }`} 
+                      isManageActive || isManageOpen ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                    }`}
                   />
-                  <span className={`text-sm font-medium transition-colors ${
-                    isManageActive || isManageOpen 
-                      ? 'text-white' 
-                      : 'text-gray-300 group-hover:text-white'
-                  }`}>
+                  <span
+                    className={`text-sm font-medium transition-colors ${
+                      isManageActive || isManageOpen ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                    }`}
+                  >
                     Manage
                   </span>
-                  <SafeIcon 
-                    icon={FiChevronDown} 
+                  <SafeIcon
+                    icon={FiChevronDown}
                     className={`h-4 w-4 transition-all duration-200 ${
-                      isManageActive || isManageOpen 
-                        ? 'text-white' 
-                        : 'text-gray-300 group-hover:text-white'
-                    } ${isManageOpen ? 'rotate-180' : ''}`} 
+                      isManageActive || isManageOpen ? 'text-white' : 'text-gray-300 group-hover:text-white'
+                    } ${isManageOpen ? 'rotate-180' : ''}`}
                   />
                 </div>
               </button>
@@ -201,8 +206,8 @@ const Navbar = () => {
                             to={item.path}
                             onClick={() => setIsManageOpen(false)}
                             className={`flex items-center space-x-3 px-4 py-3 transition-all duration-200 ${
-                              isActive 
-                                ? 'bg-white bg-opacity-10 text-white' 
+                              isActive
+                                ? 'bg-white bg-opacity-10 text-white'
                                 : 'text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white'
                             }`}
                           >
@@ -241,11 +246,11 @@ const Navbar = () => {
                       {currentUser?.email || 'user@example.com'}
                     </div>
                   </div>
-                  <SafeIcon 
-                    icon={FiChevronDown} 
+                  <SafeIcon
+                    icon={FiChevronDown}
                     className={`h-4 w-4 text-gray-300 transition-transform duration-200 ${
                       isProfileOpen ? 'rotate-180' : ''
-                    }`} 
+                    }`}
                   />
                 </button>
 
@@ -295,9 +300,7 @@ const Navbar = () => {
                           <SafeIcon icon={FiSettings} className="h-4 w-4" />
                           <span className="text-sm font-medium">Account Settings</span>
                         </Link>
-                        
                         <div className="border-t border-gray-700 my-2"></div>
-                        
                         <button
                           onClick={handleLogout}
                           className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-red-500 hover:bg-opacity-10 hover:text-red-400 transition-all duration-200"
@@ -312,10 +315,9 @@ const Navbar = () => {
                         <div className="flex items-center justify-between text-xs text-gray-400">
                           <span>Last login:</span>
                           <span>
-                            {currentUser?.lastLogin 
+                            {currentUser?.lastLogin
                               ? new Date(currentUser.lastLogin).toLocaleDateString()
-                              : 'Never'
-                            }
+                              : 'Never'}
                           </span>
                         </div>
                       </div>
@@ -386,8 +388,8 @@ const Navbar = () => {
                       to={item.path}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 mx-2 ${
-                        isActive 
-                          ? 'bg-white bg-opacity-10 text-white' 
+                        isActive
+                          ? 'bg-white bg-opacity-10 text-white'
                           : 'text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white'
                       }`}
                     >
@@ -410,8 +412,8 @@ const Navbar = () => {
                         to={item.path}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 mx-2 ${
-                          isActive 
-                            ? 'bg-white bg-opacity-10 text-white' 
+                          isActive
+                            ? 'bg-white bg-opacity-10 text-white'
                             : 'text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white'
                         }`}
                       >
