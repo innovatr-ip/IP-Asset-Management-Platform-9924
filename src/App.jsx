@@ -13,26 +13,29 @@ import Calendar from './components/pages/Calendar';
 import Alerts from './components/pages/Alerts';
 import Settings from './components/pages/Settings';
 import Employees from './components/pages/Employees';
-import LoginForm from './components/auth/LoginForm';
+import SupabaseLoginForm from './components/auth/SupabaseLoginForm';
 import SuperAdminDashboard from './components/admin/SuperAdminDashboard';
-import { IPProvider } from './context/IPContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { SupabaseIPProvider, useSupabaseIP } from './context/SupabaseIPContext';
+import { SupabaseAuthProvider, useSupabaseAuth } from './context/SupabaseAuthContext';
 import './App.css';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const { currentUser, isLoading } = useAuth();
+  const { currentUser, isLoading } = useSupabaseAuth();
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Connecting to Supabase...</p>
+        </div>
       </div>
     );
   }
 
   if (!currentUser) {
-    return <LoginForm onLoginSuccess={() => {}} />;
+    return <SupabaseLoginForm onLoginSuccess={() => {}} />;
   }
 
   return children;
@@ -40,7 +43,7 @@ const ProtectedRoute = ({ children }) => {
 
 // Main App Content Component
 const AppContent = () => {
-  const { currentUser } = useAuth();
+  const { currentUser } = useSupabaseAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
 
   // If user is super admin, show admin interface
@@ -54,7 +57,7 @@ const AppContent = () => {
 
   // Regular IP management interface
   return (
-    <IPProvider>
+    <SupabaseIPProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
         <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <main className="pt-16 flex-grow">
@@ -195,19 +198,19 @@ const AppContent = () => {
         </main>
         <Footer />
       </div>
-    </IPProvider>
+    </SupabaseIPProvider>
   );
 };
 
 function App() {
   return (
-    <AuthProvider>
+    <SupabaseAuthProvider>
       <Router>
         <ProtectedRoute>
           <AppContent />
         </ProtectedRoute>
       </Router>
-    </AuthProvider>
+    </SupabaseAuthProvider>
   );
 }
 

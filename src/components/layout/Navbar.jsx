@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../context/AuthContext';
+import { useSupabaseAuth } from '../../context/SupabaseAuthContext';
 import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
@@ -9,7 +9,7 @@ const { FiShield, FiHome, FiFolder, FiBell, FiSettings, FiUsers, FiCheckSquare, 
 
 const Navbar = () => {
   const location = useLocation();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout } = useSupabaseAuth();
   const [isManageOpen, setIsManageOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -55,17 +55,17 @@ const Navbar = () => {
     };
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm('Are you sure you want to log out?')) {
-      logout();
+      await logout();
       setIsProfileOpen(false);
     }
   };
 
   const getInitials = (user) => {
     if (!user) return 'U';
-    const firstName = user.firstName || '';
-    const lastName = user.lastName || '';
+    const firstName = user.first_name || '';
+    const lastName = user.last_name || '';
     return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || 'U';
   };
 
@@ -231,7 +231,7 @@ const Navbar = () => {
                   </div>
                   <div className="hidden md:block text-left">
                     <div className="text-sm font-medium text-white">
-                      {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
+                      {currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : 'User'}
                     </div>
                     <div className="text-xs text-gray-300">
                       {currentUser?.email || 'user@example.com'}
@@ -263,7 +263,7 @@ const Navbar = () => {
                           </div>
                           <div className="flex-1">
                             <div className="text-base font-semibold text-white">
-                              {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
+                              {currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : 'User'}
                             </div>
                             <div className="text-sm text-blue-100">
                               {currentUser?.email || 'user@example.com'}
@@ -303,12 +303,8 @@ const Navbar = () => {
                       {/* Footer */}
                       <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
                         <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>Last login:</span>
-                          <span>
-                            {currentUser?.lastLogin
-                              ? new Date(currentUser.lastLogin).toLocaleDateString()
-                              : 'Never'}
-                          </span>
+                          <span>Supabase Connected</span>
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         </div>
                       </div>
                     </motion.div>
@@ -360,7 +356,7 @@ const Navbar = () => {
                       </div>
                       <div>
                         <div className="text-sm font-medium text-white">
-                          {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
+                          {currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : 'User'}
                         </div>
                         <div className="text-xs text-gray-300">
                           {getRoleLabel(currentUser.role)}
