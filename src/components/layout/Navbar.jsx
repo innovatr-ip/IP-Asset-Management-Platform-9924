@@ -1,38 +1,36 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSupabaseAuth } from '../../context/SupabaseAuthContext';
+import React, {useState, useRef, useEffect} from 'react';
+import {Link, useLocation} from 'react-router-dom';
+import {motion, AnimatePresence} from 'framer-motion';
+import {useAuth} from '../../context/AuthContext';
 import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiShield, FiHome, FiFolder, FiBell, FiSettings, FiUsers, FiCheckSquare, FiFileText, FiCalendar, FiEye, FiChevronDown, FiMenu, FiLogOut, FiUser, FiLogIn } = FiIcons;
+const {FiShield, FiHome, FiFolder, FiBell, FiUsers, FiCheckSquare, FiFileText, FiCalendar, FiEye, FiChevronDown, FiMenu, FiLogOut, FiUser, FiLogIn} = FiIcons;
 
 const Navbar = () => {
   const location = useLocation();
-  const { currentUser, logout } = useSupabaseAuth();
+  const {currentUser, logout} = useAuth();
   const [isManageOpen, setIsManageOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const dropdownRef = useRef(null);
   const profileRef = useRef(null);
 
   const manageItems = [
-    { path: '/clients', icon: FiUsers, label: 'Clients' },
-    { path: '/assets', icon: FiFolder, label: 'IP Assets' },
-    { path: '/matters', icon: FiFileText, label: 'Matters' },
-    { path: '/tasks', icon: FiCheckSquare, label: 'Tasks' },
+    {path: '/clients', icon: FiUsers, label: 'Clients'},
+    {path: '/assets', icon: FiFolder, label: 'IP Assets'},
+    {path: '/matters', icon: FiFileText, label: 'Matters'},
+    {path: '/tasks', icon: FiCheckSquare, label: 'Tasks'},
     // Add Employees for org admins and super admins
-    ...(currentUser?.role === 'org_admin' || currentUser?.role === 'super_admin' ? [
-      { path: '/employees', icon: FiUsers, label: 'Employees' }
-    ] : [])
+    ...(currentUser?.role === 'org_admin' || currentUser?.role === 'super_admin' ? [{path: '/employees', icon: FiUsers, label: 'Employees'}] : [])
   ];
 
   const mainNavItems = [
-    { path: '/', icon: FiHome, label: 'Dashboard' },
-    { path: '/monitoring', icon: FiEye, label: 'Brand Monitoring' },
-    { path: '/calendar', icon: FiCalendar, label: 'Calendar' },
-    { path: '/alerts', icon: FiBell, label: 'Alerts' },
-    { path: '/settings', icon: FiSettings, label: 'Settings' },
+    {path: '/', icon: FiHome, label: 'Dashboard'},
+    {path: '/monitoring', icon: FiEye, label: 'Brand Monitoring'},
+    {path: '/calendar', icon: FiCalendar, label: 'Calendar'},
+    {path: '/alerts', icon: FiBell, label: 'Alerts'},
   ];
 
   // Check if any manage item is active
@@ -55,17 +53,17 @@ const Navbar = () => {
     };
   }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     if (window.confirm('Are you sure you want to log out?')) {
-      await logout();
+      logout();
       setIsProfileOpen(false);
     }
   };
 
   const getInitials = (user) => {
     if (!user) return 'U';
-    const firstName = user.first_name || '';
-    const lastName = user.last_name || '';
+    const firstName = user.firstName || '';
+    const lastName = user.lastName || '';
     return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || 'U';
   };
 
@@ -88,17 +86,17 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 navbar-blur shadow-lg">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-700 shadow-lg" style={{backgroundColor: '#000018'}}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center">
             <div className="relative">
               <img
                 src="https://quest-media-storage-bucket.s3.us-east-2.amazonaws.com/1751635789797-innovatr.png"
                 alt="Innovatr"
                 className="h-8 w-auto"
-                style={{ height: '32px' }}
+                style={{height: '32px'}}
               />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
             </div>
@@ -119,7 +117,7 @@ const Navbar = () => {
                       layoutId="navbar-active"
                       className="absolute inset-0 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg"
                       initial={false}
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      transition={{type: "spring", bounce: 0.2, duration: 0.6}}
                     />
                   )}
                   <div className="relative flex items-center space-x-2">
@@ -152,7 +150,7 @@ const Navbar = () => {
                     layoutId="navbar-active-manage"
                     className="absolute inset-0 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg"
                     initial={false}
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    transition={{type: "spring", bounce: 0.2, duration: 0.6}}
                   />
                 )}
                 <div className="relative flex items-center space-x-2">
@@ -182,11 +180,12 @@ const Navbar = () => {
               <AnimatePresence>
                 {isManageOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full mt-2 right-0 w-48 rounded-xl shadow-xl border border-gray-200 bg-white"
+                    initial={{opacity: 0, y: -10, scale: 0.95}}
+                    animate={{opacity: 1, y: 0, scale: 1}}
+                    exit={{opacity: 0, y: -10, scale: 0.95}}
+                    transition={{duration: 0.2}}
+                    className="absolute top-full mt-2 right-0 w-48 rounded-xl shadow-xl border border-gray-700"
+                    style={{backgroundColor: '#000018'}}
                   >
                     <div className="py-2">
                       {manageItems.map((item, index) => {
@@ -198,14 +197,14 @@ const Navbar = () => {
                             onClick={() => setIsManageOpen(false)}
                             className={`flex items-center space-x-3 px-4 py-3 transition-all duration-200 ${
                               isActive
-                                ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-500'
-                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                ? 'bg-white bg-opacity-10 text-white'
+                                : 'text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white'
                             }`}
                           >
                             <SafeIcon icon={item.icon} className="h-4 w-4" />
                             <span className="text-sm font-medium">{item.label}</span>
                             {isActive && (
-                              <div className="ml-auto w-2 h-2 bg-primary-500 rounded-full"></div>
+                              <div className="ml-auto w-2 h-2 bg-green-400 rounded-full"></div>
                             )}
                           </Link>
                         );
@@ -231,7 +230,7 @@ const Navbar = () => {
                   </div>
                   <div className="hidden md:block text-left">
                     <div className="text-sm font-medium text-white">
-                      {currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : 'User'}
+                      {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
                     </div>
                     <div className="text-xs text-gray-300">
                       {currentUser?.email || 'user@example.com'}
@@ -249,21 +248,22 @@ const Navbar = () => {
                 <AnimatePresence>
                   {isProfileOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute top-full mt-2 right-0 w-80 rounded-xl shadow-xl border border-gray-200 overflow-hidden bg-white"
+                      initial={{opacity: 0, y: -10, scale: 0.95}}
+                      animate={{opacity: 1, y: 0, scale: 1}}
+                      exit={{opacity: 0, y: -10, scale: 0.95}}
+                      transition={{duration: 0.2}}
+                      className="absolute top-full mt-2 right-0 w-80 rounded-xl shadow-xl border border-gray-700 overflow-hidden"
+                      style={{backgroundColor: '#000018'}}
                     >
                       {/* Profile Header */}
-                      <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-purple-600">
+                      <div className="px-6 py-4 border-b border-gray-700 bg-gradient-to-r from-blue-600 to-purple-600">
                         <div className="flex items-center space-x-4">
                           <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white font-bold text-lg">
                             {getInitials(currentUser)}
                           </div>
                           <div className="flex-1">
                             <div className="text-base font-semibold text-white">
-                              {currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : 'User'}
+                              {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
                             </div>
                             <div className="text-sm text-blue-100">
                               {currentUser?.email || 'user@example.com'}
@@ -285,15 +285,16 @@ const Navbar = () => {
                         <Link
                           to="/settings"
                           onClick={() => setIsProfileOpen(false)}
-                          className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
+                          className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-white hover:bg-opacity-5 hover:text-white transition-all duration-200"
                         >
-                          <SafeIcon icon={FiSettings} className="h-4 w-4" />
+                          <SafeIcon icon={FiIcons.FiSettings} className="h-4 w-4" />
                           <span className="text-sm font-medium">Account Settings</span>
                         </Link>
-                        <div className="border-t border-gray-200 my-2"></div>
+
+                        <div className="border-t border-gray-700 my-2"></div>
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+                          className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-red-500 hover:bg-opacity-10 hover:text-red-400 transition-all duration-200"
                         >
                           <SafeIcon icon={FiLogOut} className="h-4 w-4" />
                           <span className="text-sm font-medium">Sign Out</span>
@@ -301,10 +302,14 @@ const Navbar = () => {
                       </div>
 
                       {/* Footer */}
-                      <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>Supabase Connected</span>
-                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <div className="px-4 py-3 bg-gray-800 bg-opacity-50 border-t border-gray-700">
+                        <div className="flex items-center justify-between text-xs text-gray-400">
+                          <span>Last login:</span>
+                          <span>
+                            {currentUser?.lastLogin
+                              ? new Date(currentUser.lastLogin).toLocaleDateString()
+                              : 'Never'}
+                          </span>
                         </div>
                       </div>
                     </motion.div>
@@ -314,8 +319,8 @@ const Navbar = () => {
             ) : (
               /* Login Button for logged out users */
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{scale: 1.05}}
+                whileTap={{scale: 0.95}}
                 onClick={() => window.location.reload()} // This will trigger the login form
                 className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-200 font-medium"
               >
@@ -340,11 +345,11 @@ const Navbar = () => {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden border-t border-gray-600 py-4 bg-gray-900 bg-opacity-95"
+              initial={{opacity: 0, height: 0}}
+              animate={{opacity: 1, height: 'auto'}}
+              exit={{opacity: 0, height: 0}}
+              transition={{duration: 0.2}}
+              className="md:hidden border-t border-gray-700 py-4"
             >
               <div className="space-y-2">
                 {/* Mobile Auth Section */}
@@ -356,7 +361,7 @@ const Navbar = () => {
                       </div>
                       <div>
                         <div className="text-sm font-medium text-white">
-                          {currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : 'User'}
+                          {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
                         </div>
                         <div className="text-xs text-gray-300">
                           {getRoleLabel(currentUser.role)}
@@ -386,7 +391,7 @@ const Navbar = () => {
                 })}
 
                 {/* Mobile Manage Section */}
-                <div className="border-t border-gray-600 pt-2 mt-2">
+                <div className="border-t border-gray-700 pt-2 mt-2">
                   <div className="px-4 py-2 text-xs font-medium text-gray-400 uppercase tracking-wide">
                     Manage
                   </div>
@@ -412,7 +417,7 @@ const Navbar = () => {
 
                 {/* Mobile Logout */}
                 {currentUser && (
-                  <div className="border-t border-gray-600 pt-2 mt-2">
+                  <div className="border-t border-gray-700 pt-2 mt-2">
                     <button
                       onClick={() => {
                         setIsMobileMenuOpen(false);

@@ -1,207 +1,108 @@
-/* Application specific styles */
 .app-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* Navbar specific styles */
-.navbar-blur {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background-color: rgba(0, 0, 24, 0.95);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* Card components */
-.card {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f1f5f9;
-  transition: all 0.2s ease-in-out;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
 }
 
-.card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
 }
 
-/* Button styles */
-.btn {
-  font-family: 'Red Hat Display', sans-serif;
-  font-weight: 500;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease-in-out;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.btn-primary {
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-}
-
-.btn-primary:hover {
-  background-color: #1d4ed8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
-}
-
-.btn-secondary {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
-  padding: 0.75rem 1.5rem;
-}
-
-.btn-secondary:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
-}
-
-/* Form styles */
-.form-input {
-  font-family: 'Red Hat Display', sans-serif;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  background-color: white;
-  transition: all 0.2s ease-in-out;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.form-label {
-  font-family: 'Red Hat Display', sans-serif;
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-/* Layout utilities */
-.container-fluid {
-  width: 100%;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-.main-content {
-  padding-top: 4rem; /* Account for fixed navbar */
-  min-height: calc(100vh - 4rem);
-}
-
-/* Animation classes */
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.3s ease-out;
-}
-
-.animate-bounce-soft {
-  animation: bounce 1s ease-in-out infinite;
-}
-
-/* Responsive utilities */
-@media (max-width: 768px) {
-  .container-fluid {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-  
-  .main-content {
-    padding: 1rem 0.5rem;
-    padding-top: 4rem;
-  }
-}
-
-/* Loading states */
-.loading-spinner {
-  border: 2px solid #f3f4f6;
-  border-top: 2px solid #2563eb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Status indicators */
-.status-active {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.status-pending {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.status-inactive {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-/* Priority indicators */
-.priority-high {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-.priority-medium {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.priority-low {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-/* Text utilities */
-.text-truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.line-clamp-2 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.line-clamp-3 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
-
-/* Focus styles */
-.focus-ring:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 /* Smooth transitions */
 * {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Custom animations */
+@keyframes slideInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-up {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Typography utilities */
+.text-heading {
+  font-family: 'Red Hat Display', sans-serif;
+  font-weight: 700;
+}
+
+.text-body {
+  font-family: 'Red Hat Display', sans-serif;
+  font-weight: 400;
+}
+
+/* Ensure all headings use the proper weight */
+h1, h2, h3, h4, h5, h6,
+.font-bold, .font-semibold, .font-medium {
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700 !important;
+}
+
+/* Ensure all paragraphs and body text use normal weight */
+p, span, div, label, button, input, textarea, select {
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+p {
+  font-weight: 400 !important;
+}
+
+/* Button and form element consistency */
+button, input, textarea, select {
+  font-weight: 400;
+}
+
+/* Maintain proper weights for specific elements */
+.font-light {
+  font-weight: 300 !important;
+}
+
+.font-normal {
+  font-weight: 400 !important;
+}
+
+.font-medium {
+  font-weight: 500 !important;
+}
+
+.font-semibold {
+  font-weight: 600 !important;
+}
+
+.font-bold {
+  font-weight: 700 !important;
+}
+
+.font-extrabold {
+  font-weight: 800 !important;
+}
+
+.font-black {
+  font-weight: 900 !important;
 }
