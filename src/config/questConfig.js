@@ -1,0 +1,8 @@
+export default {
+  QUEST_ONBOARDING_QUESTID: 'c-4f0e21f2-83ad-4661-97e8-6f257a6ba30f',
+  USER_ID: 'u-ae73114a-658b-4d1b-aed7-5953d91ebeb6',
+  APIKEY: 'k-b821b479-4390-424e-bd89-0a945eb2f5f6',
+  TOKEN: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1LWFlNzMxMTRhLTY1OGItNGQxYi1hZWQ3LTU5NTNkOTFlYmViNiIsImlhdCI6MTc1MjE4MTQ3NCwiZXhwIjoxNzU0NzczNDc0fQ.gLSH8lsr0gRA8ggH48YWWSZ_jlo3wxKWIbG10vn0wKk',
+  ENTITYID: 'e-96c0adc4-35f6-4c98-ab6b-2384f4d71db2',
+  PRIMARY_COLOR: '#2563eb' // Extracted from the existing primary-600 color
+};

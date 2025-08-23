@@ -1,213 +1,190 @@
-import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import Navbar from './components/layout/Navbar';
+import { AuthProvider } from './context/AuthContext';
+import { QuestAuthProvider } from './context/QuestAuthContext';
+import { IPProvider } from './context/IPContext';
+import QuestProtectedRoute from './components/auth/QuestProtectedRoute';
+import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import SafeIcon from './common/SafeIcon';
+import * as FiIcons from 'react-icons/fi';
+
+const { FiEye, FiEyeOff, FiShield, FiUser } = FiIcons;
+
+// Import pages
+import LandingPage from './components/pages/LandingPage';
 import Dashboard from './components/pages/Dashboard';
 import IPAssets from './components/pages/IPAssets';
-import BrandMonitoring from './components/pages/BrandMonitoring';
 import Clients from './components/pages/Clients';
-import Matters from './components/pages/Matters';
 import Tasks from './components/pages/Tasks';
+import Matters from './components/pages/Matters';
 import Calendar from './components/pages/Calendar';
+import BrandMonitoring from './components/pages/BrandMonitoring';
 import Alerts from './components/pages/Alerts';
-import Settings from './components/pages/Settings';
 import Employees from './components/pages/Employees';
+import Settings from './components/pages/Settings';
+import CompanySettings from './components/pages/CompanySettings';
+
+// Import auth pages
+import CustomerLoginPage from './components/auth/CustomerLoginPage';
+import CreateAccountPage from './components/auth/CreateAccountPage';
+import QuestLoginPage from './components/auth/QuestLoginPage';
+import UnifiedLoginPage from './components/auth/UnifiedLoginPage';
 import LoginForm from './components/auth/LoginForm';
+import QuestOnboardingPage from './components/auth/QuestOnboardingPage';
+
+// Import admin pages
 import SuperAdminDashboard from './components/admin/SuperAdminDashboard';
-import { IPProvider } from './context/IPContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+
 import './App.css';
 
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
-  const { currentUser, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-
-  if (!currentUser) {
-    return <LoginForm onLoginSuccess={() => {}} />;
-  }
-
-  return children;
+// Page Layout Component
+const PageLayout = ({ children }) => {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow pt-16">
+        {children}
+      </main>
+      <Footer />
+    </div>
+  );
 };
 
-// Main App Content Component
-const AppContent = () => {
-  const { currentUser } = useAuth();
-  const [currentPage, setCurrentPage] = useState('dashboard');
+// Landing Page Wrapper for hash navigation
+const LandingPageWrapper = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // If user is super admin, show admin interface
-  if (currentUser?.role === 'super_admin') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-        <SuperAdminDashboard />
-      </div>
-    );
-  }
+  React.useEffect(() => {
+    if (location.hash) {
+      const element = document.getElementById(location.hash.substring(1));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location]);
 
-  // Regular IP management interface
-  return (
-    <IPProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
-        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <main className="pt-16 flex-grow">
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Dashboard />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/assets"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <IPAssets />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/monitoring"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <BrandMonitoring />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/clients"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Clients />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/matters"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Matters />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/tasks"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Tasks />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/calendar"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Calendar />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/alerts"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Alerts />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Settings />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/employees"
-                element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Employees />
-                  </motion.div>
-                }
-              />
-            </Routes>
-          </AnimatePresence>
-        </main>
-        <Footer />
-      </div>
-    </IPProvider>
-  );
+  return <LandingPage />;
 };
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <ProtectedRoute>
-          <AppContent />
-        </ProtectedRoute>
-      </Router>
-    </AuthProvider>
+    <QuestAuthProvider>
+      <AuthProvider>
+        <IPProvider>
+          <Router>
+            <div className="App">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<LandingPageWrapper />} />
+                
+                {/* Authentication Routes */}
+                <Route path="/login" element={<CustomerLoginPage />} />
+                <Route path="/create-account" element={<CreateAccountPage />} />
+                <Route path="/quest-login" element={<QuestLoginPage />} />
+                <Route path="/admin-login" element={<UnifiedLoginPage />} />
+                <Route path="/unified-login" element={<UnifiedLoginPage />} />
+                <Route path="/login-form" element={<LoginForm />} />
+                <Route path="/onboarding" element={<QuestOnboardingPage />} />
+
+                {/* Protected Application Routes */}
+                <Route path="/dashboard" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <Dashboard />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/assets" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <IPAssets />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/clients" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <Clients />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/tasks" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <Tasks />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/matters" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <Matters />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/calendar" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <Calendar />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/monitoring" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <BrandMonitoring />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/alerts" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <Alerts />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/employees" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <Employees />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <Settings />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+                <Route path="/company-settings" element={
+                  <QuestProtectedRoute>
+                    <PageLayout>
+                      <CompanySettings />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+
+                {/* Super Admin Routes */}
+                <Route path="/super-admin" element={
+                  <QuestProtectedRoute adminOnly>
+                    <PageLayout>
+                      <SuperAdminDashboard />
+                    </PageLayout>
+                  </QuestProtectedRoute>
+                } />
+
+                {/* Catch all route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </div>
+          </Router>
+        </IPProvider>
+      </AuthProvider>
+    </QuestAuthProvider>
   );
 }
 

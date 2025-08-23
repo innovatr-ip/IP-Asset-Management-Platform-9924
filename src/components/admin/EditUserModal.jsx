@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiX, FiSave } = FiIcons;
+const { FiX, FiSave, FiKey, FiEye, FiEyeOff } = FiIcons;
 
 const EditUserModal = ({ isOpen, onClose, user }) => {
   const { updateUser, organizations } = useAuth();
@@ -12,10 +12,18 @@ const EditUserModal = ({ isOpen, onClose, user }) => {
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
     role: 'end_user',
     organizationId: '',
-    status: 'active'
+    status: 'active',
+    department: '',
+    jobTitle: '',
+    phone: '',
+    notes: ''
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [changePassword, setChangePassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -23,16 +31,71 @@ const EditUserModal = ({ isOpen, onClose, user }) => {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
+        password: user.password || '',
         role: user.role || 'end_user',
         organizationId: user.organizationId || '',
-        status: user.status || 'active'
+        status: user.status || 'active',
+        department: user.department || '',
+        jobTitle: user.jobTitle || '',
+        phone: user.phone || '',
+        notes: user.notes || ''
       });
+      setChangePassword(false);
+      setShowPassword(false);
     }
   }, [user]);
 
+  const generateRandomPassword = () => {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
+  };
+
+  const handleGeneratePassword = () => {
+    const newPassword = generateRandomPassword();
+    setFormData(prev => ({ ...prev, password: newPassword }));
+    setChangePassword(true);
+    setShowPassword(true);
+  };
+
+  const handleResetPassword = () => {
+    if (window.confirm(`Reset password for ${user.firstName} ${user.lastName}? This will generate a new temporary password.`)) {
+      const newPassword = generateRandomPassword();
+      
+      updateUser(user.id, {
+        password: newPassword,
+        mustChangePassword: true,
+        passwordResetAt: new Date().toISOString()
+      });
+      
+      alert(`Password reset successfully!\n\nNew password: ${newPassword}\n\nPlease share this securely with the user. They will be required to change it on next login.`);
+      onClose();
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateUser(user.id, formData);
+    
+    const updateData = { ...formData };
+    
+    // Only include password in update if it's being changed
+    if (!changePassword) {
+      delete updateData.password;
+    } else {
+      updateData.mustChangePassword = true;
+      updateData.passwordChangedAt = new Date().toISOString();
+    }
+    
+    updateUser(user.id, updateData);
+    
+    if (changePassword) {
+      alert(`User updated successfully!\n\nNew password: ${formData.password}\n\nPlease share this securely with the user.`);
+    }
+    
     onClose();
   };
 
@@ -56,7 +119,10 @@ const EditUserModal = ({ isOpen, onClose, user }) => {
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Edit User</h2>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Edit User</h2>
+              <p className="text-sm text-gray-600">User ID: {user.id}</p>
+            </div>
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
@@ -115,6 +181,108 @@ const EditUserModal = ({ isOpen, onClose, user }) => {
               />
             </div>
 
+            {/* Contact Information */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="+1 (555) 123-4567"
+              />
+            </div>
+
+            {/* Password Management */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-gray-700">
+                  Password Management
+                </label>
+                <div className="flex space-x-2">
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleResetPassword}
+                    className="px-3 py-1 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors text-xs font-medium flex items-center space-x-1"
+                  >
+                    <SafeIcon icon={FiKey} className="h-3 w-3" />
+                    <span>Reset Password</span>
+                  </motion.button>
+                  <button
+                    type="button"
+                    onClick={() => setChangePassword(!changePassword)}
+                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-xs font-medium"
+                  >
+                    {changePassword ? 'Cancel Change' : 'Change Password'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Current Password Display */}
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">Current Password:</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                  >
+                    <SafeIcon icon={showPassword ? FiEyeOff : FiEye} className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="font-mono text-sm bg-white px-3 py-2 rounded border">
+                  {showPassword ? formData.password : '••••••••'}
+                </div>
+                {user.mustChangePassword && (
+                  <div className="text-xs text-orange-600 mt-1">
+                    ⚠️ User must change password on next login
+                  </div>
+                )}
+              </div>
+
+              {/* New Password Input */}
+              {changePassword && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      New Password *
+                    </label>
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required={changePassword}
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        placeholder="Enter new password"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleGeneratePassword}
+                        className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                      >
+                        <SafeIcon icon={FiKey} className="h-4 w-4" />
+                        <span>Generate</span>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="text-sm text-yellow-800">
+                      <p className="font-medium mb-1">Password Change Notice:</p>
+                      <p>The user will be required to change this password on their next login for security.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Role */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -155,6 +323,36 @@ const EditUserModal = ({ isOpen, onClose, user }) => {
               </select>
             </div>
 
+            {/* Job Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Department
+                </label>
+                <input
+                  type="text"
+                  name="department"
+                  value={formData.department}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="e.g., Legal, IP, R&D"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Job Title
+                </label>
+                <input
+                  type="text"
+                  name="jobTitle"
+                  value={formData.jobTitle}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="e.g., IP Paralegal, Patent Attorney"
+                />
+              </div>
+            </div>
+
             {/* Status */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -171,6 +369,21 @@ const EditUserModal = ({ isOpen, onClose, user }) => {
                 <option value="suspended">Suspended</option>
                 <option value="pending">Pending</option>
               </select>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Notes
+              </label>
+              <textarea
+                name="notes"
+                value={formData.notes}
+                onChange={handleChange}
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Additional notes about the user"
+              />
             </div>
 
             {/* Buttons */}

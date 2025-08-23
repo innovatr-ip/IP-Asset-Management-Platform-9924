@@ -7,15 +7,19 @@ import EditUserModal from './EditUserModal';
 import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiPlus, FiSearch, FiEdit, FiUserX, FiUserCheck, FiTrash2, FiShield, FiUser, FiBuilding } = FiIcons;
+const { 
+  FiPlus, FiSearch, FiEdit, FiUserX, FiUserCheck, FiTrash2, 
+  FiShield, FiUser, FiBuilding, FiKey, FiEye, FiEyeOff 
+} = FiIcons;
 
 const UserManagement = () => {
-  const { users, organizations, suspendUser, activateUser, deleteUser } = useAuth();
+  const { users, organizations, suspendUser, activateUser, deleteUser, updateUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [showPasswords, setShowPasswords] = useState({});
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
@@ -25,46 +29,34 @@ const UserManagement = () => {
     
     const matchesRole = filterRole === 'all' || user.role === filterRole;
     const matchesStatus = filterStatus === 'all' || user.status === filterStatus;
-
+    
     return matchesSearch && matchesRole && matchesStatus;
   });
 
   const getRoleIcon = (role) => {
     switch (role) {
-      case 'super_admin':
-        return FiShield;
-      case 'org_admin':
-        return FiBuilding;
-      case 'end_user':
-        return FiUser;
-      default:
-        return FiUser;
+      case 'super_admin': return FiShield;
+      case 'org_admin': return FiBuilding;
+      case 'end_user': return FiUser;
+      default: return FiUser;
     }
   };
 
   const getRoleLabel = (role) => {
     switch (role) {
-      case 'super_admin':
-        return 'Super Admin';
-      case 'org_admin':
-        return 'Organization Admin';
-      case 'end_user':
-        return 'End User';
-      default:
-        return role;
+      case 'super_admin': return 'Super Admin';
+      case 'org_admin': return 'Organization Admin';
+      case 'end_user': return 'End User';
+      default: return role;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-700';
-      case 'suspended':
-        return 'bg-red-100 text-red-700';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
+      case 'active': return 'bg-green-100 text-green-700';
+      case 'suspended': return 'bg-red-100 text-red-700';
+      case 'pending': return 'bg-yellow-100 text-yellow-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -89,13 +81,34 @@ const UserManagement = () => {
     }
   };
 
+  const togglePasswordVisibility = (userId) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [userId]: !prev[userId]
+    }));
+  };
+
+  const handleResetPassword = (user) => {
+    const newPassword = `temp${Math.random().toString(36).substring(2, 8)}`;
+    
+    if (window.confirm(`Reset password for ${user.firstName} ${user.lastName}?\n\nNew temporary password: ${newPassword}\n\nThe user will need to change this on next login.`)) {
+      updateUser(user.id, {
+        password: newPassword,
+        mustChangePassword: true,
+        passwordResetAt: new Date().toISOString()
+      });
+      
+      alert(`Password reset successfully!\n\nNew password: ${newPassword}\n\nPlease share this securely with the user.`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-          <p className="text-gray-600">Manage user accounts and permissions</p>
+          <p className="text-gray-600">Manage user accounts, passwords, and permissions</p>
         </div>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -175,6 +188,9 @@ const UserManagement = () => {
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Password
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Last Login
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -207,38 +223,88 @@ const UserManagement = () => {
                             {user.firstName} {user.lastName}
                           </div>
                           <div className="text-sm text-gray-500">{user.email}</div>
+                          {user.phone && (
+                            <div className="text-xs text-gray-400">{user.phone}</div>
+                          )}
                         </div>
                       </div>
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
                         <SafeIcon icon={getRoleIcon(user.role)} className="h-4 w-4 text-gray-400" />
                         <span className="text-sm text-gray-900">{getRoleLabel(user.role)}</span>
                       </div>
+                      {user.department && (
+                        <div className="text-xs text-gray-500">{user.department}</div>
+                      )}
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {getOrganizationName(user.organizationId)}
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>
                         {user.status}
                       </span>
+                      {user.mustChangePassword && (
+                        <div className="text-xs text-orange-600 mt-1">Must reset</div>
+                      )}
                     </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-2">
+                        <div className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                          {showPasswords[user.id] ? user.password : '••••••••'}
+                        </div>
+                        <button
+                          onClick={() => togglePasswordVisibility(user.id)}
+                          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                          title="Toggle password visibility"
+                        >
+                          <SafeIcon 
+                            icon={showPasswords[user.id] ? FiEyeOff : FiEye} 
+                            className="h-3 w-3" 
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleResetPassword(user)}
+                          className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                          title="Reset password"
+                        >
+                          <SafeIcon icon={FiKey} className="h-3 w-3" />
+                        </button>
+                      </div>
+                      {user.passwordResetAt && (
+                        <div className="text-xs text-gray-400 mt-1">
+                          Reset: {format(new Date(user.passwordResetAt), 'MMM dd')}
+                        </div>
+                      )}
+                    </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.lastLogin ? format(new Date(user.lastLogin), 'MMM dd, yyyy') : 'Never'}
+                      {user.lastLogin 
+                        ? format(new Date(user.lastLogin), 'MMM dd, yyyy')
+                        : 'Never'
+                      }
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => setEditingUser(user)}
                           className="text-indigo-600 hover:text-indigo-900 p-1 hover:bg-indigo-50 rounded"
+                          title="Edit user"
                         >
                           <SafeIcon icon={FiEdit} className="h-4 w-4" />
                         </button>
+                        
                         {user.status === 'active' ? (
                           <button
                             onClick={() => handleSuspendUser(user.id)}
                             className="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded"
+                            title="Suspend user"
                           >
                             <SafeIcon icon={FiUserX} className="h-4 w-4" />
                           </button>
@@ -246,14 +312,17 @@ const UserManagement = () => {
                           <button
                             onClick={() => handleActivateUser(user.id)}
                             className="text-green-600 hover:text-green-900 p-1 hover:bg-green-50 rounded"
+                            title="Activate user"
                           >
                             <SafeIcon icon={FiUserCheck} className="h-4 w-4" />
                           </button>
                         )}
+
                         {user.role !== 'super_admin' && (
                           <button
                             onClick={() => handleDeleteUser(user.id)}
                             className="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded"
+                            title="Delete user"
                           >
                             <SafeIcon icon={FiTrash2} className="h-4 w-4" />
                           </button>
@@ -277,15 +346,15 @@ const UserManagement = () => {
       </div>
 
       {/* Modals */}
-      <AddUserModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+      <AddUserModal 
+        isOpen={showAddModal} 
+        onClose={() => setShowAddModal(false)} 
       />
-
-      <EditUserModal
-        isOpen={!!editingUser}
-        onClose={() => setEditingUser(null)}
-        user={editingUser}
+      
+      <EditUserModal 
+        isOpen={!!editingUser} 
+        onClose={() => setEditingUser(null)} 
+        user={editingUser} 
       />
     </div>
   );

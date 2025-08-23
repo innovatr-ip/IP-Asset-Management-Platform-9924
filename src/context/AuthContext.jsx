@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import supabase from '../lib/supabase';
 
 const AuthContext = createContext();
 
@@ -17,349 +18,496 @@ export const AuthProvider = ({ children }) => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [packages, setPackages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
 
-  // Load data from localStorage on mount
+  // Initialize demo data
   useEffect(() => {
-    const savedCurrentUser = localStorage.getItem('auth-current-user');
-    const savedUsers = localStorage.getItem('auth-users');
-    const savedOrganizations = localStorage.getItem('auth-organizations');
-    const savedSubscriptions = localStorage.getItem('auth-subscriptions');
-    const savedPackages = localStorage.getItem('auth-packages');
-
-    if (savedCurrentUser) {
-      setCurrentUser(JSON.parse(savedCurrentUser));
-    }
-
-    if (savedUsers) {
-      setUsers(JSON.parse(savedUsers));
-    }
-
-    if (savedOrganizations) {
-      setOrganizations(JSON.parse(savedOrganizations));
-    } else {
-      // Initialize default organizations
-      initializeDefaultOrganizations();
-    }
-
-    if (savedSubscriptions) {
-      setSubscriptions(JSON.parse(savedSubscriptions));
-    }
-
-    if (savedPackages) {
-      setPackages(JSON.parse(savedPackages));
-    } else {
-      // Initialize default packages
-      initializeDefaultPackages();
-    }
-
-    // Initialize super admin if no users exist
-    if (!savedUsers || JSON.parse(savedUsers).length === 0) {
-      initializeSuperAdmin();
-    }
-
-    setIsLoading(false);
+    initializeDemoData();
   }, []);
 
-  // Save data to localStorage whenever they change
-  useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem('auth-current-user', JSON.stringify(currentUser));
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
-    localStorage.setItem('auth-users', JSON.stringify(users));
-  }, [users]);
-
-  useEffect(() => {
-    localStorage.setItem('auth-organizations', JSON.stringify(organizations));
-  }, [organizations]);
-
-  useEffect(() => {
-    localStorage.setItem('auth-subscriptions', JSON.stringify(subscriptions));
-  }, [subscriptions]);
-
-  useEffect(() => {
-    localStorage.setItem('auth-packages', JSON.stringify(packages));
-  }, [packages]);
-
-  const initializeDefaultOrganizations = () => {
-    const defaultOrg = {
-      id: 'org-default',
-      name: 'Innovatr Demo Organization',
-      domain: 'innovatr.com',
-      contactEmail: 'admin@innovatr.com',
-      contactPhone: '+1-555-0123',
-      address: '123 Innovation Street, Tech City, TC 12345',
-      description: 'Demo organization for Innovatr IP management platform',
-      status: 'active',
-      createdAt: new Date().toISOString(),
-      settings: {
-        allowSelfRegistration: false,
-        requireApproval: true
-      }
-    };
-
-    setOrganizations([defaultOrg]);
-  };
-
-  const initializeSuperAdmin = () => {
-    const superAdmin = {
-      id: 'super-admin-1',
-      email: 'admin@innovatr.com',
-      password: 'admin123', // In production, this would be hashed
-      firstName: 'Super',
-      lastName: 'Admin',
-      role: 'super_admin',
-      status: 'active',
-      organizationId: null,
-      createdAt: new Date().toISOString(),
-      lastLogin: null,
-      permissions: ['all']
-    };
-
-    setUsers([superAdmin]);
-  };
-
-  const initializeDefaultPackages = () => {
-    const defaultPackages = [
+  const initializeDemoData = () => {
+    // Demo Organizations
+    const demoOrganizations = [
       {
-        id: 'pkg-1',
-        name: 'Starter',
-        description: 'Perfect for solo practitioners and small firms',
-        price: 99,
-        billingCycle: 'monthly',
-        features: [
-          'Up to 100 IP assets',
-          'Basic brand monitoring',
-          '5 end users',
-          'Standard support',
-          'Basic reporting'
-        ],
-        limits: {
-          assets: 100,
-          endUsers: 5,
-          storage: '5GB',
-          apiCalls: 1000
-        },
-        isActive: true,
-        createdAt: new Date().toISOString()
+        id: 'org-1',
+        name: 'Acme Law Firm',
+        domain: 'acmelaw.com',
+        contactEmail: 'contact@acmelaw.com',
+        contactPhone: '+1 (555) 123-4567',
+        address: '123 Legal Street, New York, NY 10001',
+        description: 'Leading intellectual property law firm specializing in patents and trademarks',
+        status: 'active',
+        createdAt: '2024-01-15T10:00:00Z'
       },
       {
-        id: 'pkg-2',
-        name: 'Professional',
-        description: 'Ideal for growing law firms with expanding IP portfolios',
-        price: 199,
-        billingCycle: 'monthly',
-        features: [
-          'Up to 500 IP assets',
-          'Advanced brand monitoring',
-          '15 end users',
-          'Priority support',
-          'Advanced reporting',
-          'API access',
-          'White-label options'
-        ],
-        limits: {
-          assets: 500,
-          endUsers: 15,
-          storage: '25GB',
-          apiCalls: 5000
-        },
-        isActive: true,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'pkg-3',
-        name: 'Enterprise',
-        description: 'For large firms requiring unlimited access and premium features',
-        price: 499,
-        billingCycle: 'monthly',
-        features: [
-          'Unlimited IP assets',
-          'Premium brand monitoring with AI',
-          'Unlimited end users',
-          'Dedicated support manager',
-          'Custom reporting & analytics',
-          'Full API access',
-          'Custom integrations',
-          'Advanced security features'
-        ],
-        limits: {
-          assets: -1, // unlimited
-          endUsers: -1, // unlimited
-          storage: '100GB',
-          apiCalls: -1 // unlimited
-        },
-        isActive: true,
-        createdAt: new Date().toISOString()
+        id: 'org-2', 
+        name: 'TechCorp Legal',
+        domain: 'techcorp.com',
+        contactEmail: 'legal@techcorp.com',
+        contactPhone: '+1 (555) 987-6543',
+        address: '456 Innovation Ave, San Francisco, CA 94105',
+        description: 'In-house legal team for technology company',
+        status: 'active',
+        createdAt: '2024-02-01T14:30:00Z'
       }
     ];
 
-    setPackages(defaultPackages);
+    // Demo Packages
+    const demoPackages = [
+      {
+        id: 'pkg-1',
+        name: 'Professional',
+        description: 'Perfect for small law firms and solo practitioners',
+        price: 99,
+        billingCycle: 'monthly',
+        features: ['Up to 500 IP assets', 'Basic monitoring', 'Email support', 'Standard reporting'],
+        limits: { users: 5, assets: 500, monitoring: 10 },
+        isActive: true,
+        createdAt: '2024-01-01T00:00:00Z'
+      },
+      {
+        id: 'pkg-2',
+        name: 'Enterprise',
+        description: 'Comprehensive solution for large organizations',
+        price: 299,
+        billingCycle: 'monthly', 
+        features: ['Unlimited IP assets', 'Advanced monitoring', 'Priority support', 'Custom reporting', 'API access'],
+        limits: { users: 50, assets: -1, monitoring: -1 },
+        isActive: true,
+        createdAt: '2024-01-01T00:00:00Z'
+      }
+    ];
+
+    // Demo Subscriptions
+    const demoSubscriptions = [
+      {
+        id: 'sub-1',
+        organization_id: 'org-1',
+        package_id: 'pkg-1',
+        billingCycle: 'monthly',
+        status: 'active',
+        nextBillingDate: '2025-02-01T00:00:00Z',
+        createdAt: '2024-01-15T10:00:00Z'
+      },
+      {
+        id: 'sub-2',
+        organization_id: 'org-2',
+        package_id: 'pkg-2', 
+        billingCycle: 'monthly',
+        status: 'active',
+        nextBillingDate: '2025-02-01T00:00:00Z',
+        createdAt: '2024-02-01T14:30:00Z'
+      }
+    ];
+
+    // Demo Users
+    const demoUsers = [
+      {
+        id: 'user-1',
+        email: 'admin@innovatr.com',
+        password: 'admin123',
+        firstName: 'Super',
+        lastName: 'Admin',
+        role: 'super_admin',
+        status: 'active',
+        organizationId: null,
+        department: 'Administration',
+        jobTitle: 'System Administrator',
+        phone: '+1 (555) 000-0001',
+        notes: 'System super administrator',
+        lastLogin: '2025-01-01T12:00:00Z',
+        createdAt: '2024-01-01T00:00:00Z'
+      },
+      {
+        id: 'user-2',
+        email: 'admin@lawfirm.com',
+        password: 'admin123',
+        firstName: 'John',
+        lastName: 'Smith',
+        role: 'org_admin',
+        status: 'active',
+        organizationId: 'org-1',
+        department: 'Legal',
+        jobTitle: 'Managing Partner',
+        phone: '+1 (555) 123-4567',
+        notes: 'Organization administrator for Acme Law Firm',
+        lastLogin: '2025-01-01T10:30:00Z',
+        createdAt: '2024-01-15T10:00:00Z'
+      },
+      {
+        id: 'user-3',
+        email: 'user@lawfirm.com',
+        password: 'user123',
+        firstName: 'Sarah',
+        lastName: 'Johnson',
+        role: 'end_user',
+        status: 'active',
+        organizationId: 'org-1',
+        department: 'IP',
+        jobTitle: 'IP Paralegal',
+        phone: '+1 (555) 123-4568',
+        notes: 'IP paralegal specializing in trademark prosecution',
+        lastLogin: '2025-01-01T09:15:00Z',
+        createdAt: '2024-01-15T11:00:00Z'
+      },
+      {
+        id: 'user-4',
+        email: 'demo@innovatr.com',
+        password: 'demo123',
+        firstName: 'Demo',
+        lastName: 'User',
+        role: 'end_user',
+        status: 'active',
+        organizationId: 'org-2',
+        department: 'Legal',
+        jobTitle: 'IP Counsel',
+        phone: '+1 (555) 987-6543',
+        notes: 'Demo end user account',
+        lastLogin: '2025-01-01T08:45:00Z',
+        createdAt: '2024-02-01T14:30:00Z'
+      },
+      {
+        id: 'user-5',
+        email: 'admin@techcorp.com',
+        password: 'admin123',
+        firstName: 'Michael',
+        lastName: 'Chen',
+        role: 'org_admin',
+        status: 'active',
+        organizationId: 'org-2',
+        department: 'Legal',
+        jobTitle: 'Chief Legal Officer',
+        phone: '+1 (555) 987-6544',
+        notes: 'Organization administrator for TechCorp Legal',
+        lastLogin: '2025-01-01T11:20:00Z',
+        createdAt: '2024-02-01T14:30:00Z'
+      }
+    ];
+
+    setOrganizations(demoOrganizations);
+    setPackages(demoPackages);
+    setSubscriptions(demoSubscriptions);
+    setUsers(demoUsers);
+    setIsLoading(false);
   };
 
   // Authentication functions
-  const login = (email, password) => {
-    const user = users.find(u => u.email === email && u.password === password && u.status === 'active');
-    
-    if (user) {
-      const updatedUser = {
+  const login = async (email, password) => {
+    setAuthError(null);
+    try {
+      // Find user in demo data
+      const user = users.find(u => u.email === email && u.password === password);
+      
+      if (!user) {
+        setAuthError('Invalid email or password');
+        return { success: false, error: 'Invalid email or password' };
+      }
+
+      if (user.status !== 'active') {
+        setAuthError('Account is not active. Please contact your administrator.');
+        return { success: false, error: 'Account is not active' };
+      }
+
+      // Update last login
+      const updatedUsers = users.map(u => 
+        u.id === user.id 
+          ? { ...u, lastLogin: new Date().toISOString() }
+          : u
+      );
+      setUsers(updatedUsers);
+
+      // Set current user
+      const currentUserData = {
         ...user,
         lastLogin: new Date().toISOString()
       };
-      setCurrentUser(updatedUser);
-      
-      // Update user's last login
-      setUsers(prev => prev.map(u => u.id === user.id ? updatedUser : u));
-      
-      return { success: true, user: updatedUser };
+      setCurrentUser(currentUserData);
+
+      return { success: true, user: currentUserData };
+    } catch (error) {
+      setAuthError(error.message);
+      return { success: false, error: error.message };
     }
-    
-    return { success: false, error: 'Invalid credentials or account suspended' };
   };
 
-  const logout = () => {
+  const logout = async () => {
     setCurrentUser(null);
-    localStorage.removeItem('auth-current-user');
+    setAuthError(null);
   };
 
   // User management functions
-  const createUser = (userData) => {
-    const newUser = {
-      ...userData,
-      id: `user-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      lastLogin: null,
-      status: userData.status || 'active'
-    };
+  const createUser = async (userData) => {
+    try {
+      const newUser = {
+        id: `user-${Date.now()}`,
+        email: userData.email,
+        password: userData.password,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        role: userData.role,
+        status: userData.status || 'active',
+        organizationId: userData.organizationId,
+        department: userData.department,
+        jobTitle: userData.jobTitle,
+        phone: userData.phone,
+        notes: userData.notes,
+        mustChangePassword: userData.mustChangePassword || false,
+        lastLogin: null,
+        createdAt: new Date().toISOString()
+      };
 
-    setUsers(prev => [...prev, newUser]);
-    return newUser;
+      setUsers(prev => [...prev, newUser]);
+      return newUser;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
   };
 
-  const updateUser = (userId, updates) => {
-    setUsers(prev => prev.map(user => 
-      user.id === userId 
-        ? { ...user, ...updates, updatedAt: new Date().toISOString() }
-        : user
-    ));
+  const updateUser = async (userId, updates) => {
+    try {
+      setUsers(prev => 
+        prev.map(user => 
+          user.id === userId 
+            ? { 
+                ...user, 
+                ...updates,
+                updatedAt: new Date().toISOString()
+              } 
+            : user
+        )
+      );
+
+      // If updating the current user, update the state
+      if (userId === currentUser?.id) {
+        setCurrentUser(prev => ({
+          ...prev,
+          ...updates,
+          updatedAt: new Date().toISOString()
+        }));
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
   };
 
-  const suspendUser = (userId) => {
-    updateUser(userId, { status: 'suspended' });
+  const suspendUser = async (userId) => {
+    await updateUser(userId, { status: 'suspended' });
   };
 
-  const activateUser = (userId) => {
-    updateUser(userId, { status: 'active' });
+  const activateUser = async (userId) => {
+    await updateUser(userId, { status: 'active' });
   };
 
-  const deleteUser = (userId) => {
-    setUsers(prev => prev.filter(user => user.id !== userId));
+  const deleteUser = async (userId) => {
+    try {
+      setUsers(prev => prev.filter(user => user.id !== userId));
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
   };
 
   // Organization management functions
-  const createOrganization = (orgData) => {
-    const newOrg = {
-      ...orgData,
-      id: `org-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      status: 'active',
-      settings: {
-        allowSelfRegistration: false,
-        requireApproval: true,
-        ...orgData.settings
+  const createOrganization = async (orgData) => {
+    try {
+      const newOrg = {
+        id: `org-${Date.now()}`,
+        name: orgData.name,
+        domain: orgData.domain,
+        contactEmail: orgData.contactEmail,
+        contactPhone: orgData.contactPhone,
+        address: orgData.address,
+        description: orgData.description,
+        status: orgData.status || 'active',
+        createdAt: new Date().toISOString()
+      };
+
+      setOrganizations(prev => [...prev, newOrg]);
+      return newOrg;
+    } catch (error) {
+      console.error('Error creating organization:', error);
+      throw error;
+    }
+  };
+
+  const updateOrganization = async (orgId, updates) => {
+    try {
+      setOrganizations(prev => 
+        prev.map(org => 
+          org.id === orgId 
+            ? { ...org, ...updates, updatedAt: new Date().toISOString() }
+            : org
+        )
+      );
+    } catch (error) {
+      console.error('Error updating organization:', error);
+      throw error;
+    }
+  };
+
+  const deleteOrganization = async (orgId) => {
+    try {
+      // Check for users in this organization
+      const orgUsers = getUsersByOrganization(orgId);
+      
+      if (orgUsers.length > 0) {
+        throw new Error('Cannot delete organization with existing users. Please remove or transfer users first.');
       }
-    };
 
-    setOrganizations(prev => [...prev, newOrg]);
-    return newOrg;
+      setOrganizations(prev => prev.filter(org => org.id !== orgId));
+    } catch (error) {
+      console.error('Error deleting organization:', error);
+      throw error;
+    }
   };
 
-  const updateOrganization = (orgId, updates) => {
-    setOrganizations(prev => prev.map(org => 
-      org.id === orgId 
-        ? { ...org, ...updates, updatedAt: new Date().toISOString() }
-        : org
-    ));
-  };
-
-  const deleteOrganization = (orgId) => {
-    // First, remove all users from this organization
-    setUsers(prev => prev.filter(user => user.organizationId !== orgId));
-    
-    // Remove subscriptions for this organization
-    setSubscriptions(prev => prev.filter(sub => sub.organizationId !== orgId));
-    
-    // Remove the organization
-    setOrganizations(prev => prev.filter(org => org.id !== orgId));
+  const getUsersByOrganization = (orgId) => {
+    return users.filter(user => user.organizationId === orgId);
   };
 
   // Subscription management functions
-  const createSubscription = (subscriptionData) => {
-    const newSubscription = {
-      ...subscriptionData,
-      id: `sub-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      status: 'active',
-      nextBillingDate: calculateNextBillingDate(subscriptionData.billingCycle),
-      usageStats: {
-        assets: 0,
-        endUsers: 0,
-        storage: 0,
-        apiCalls: 0
-      }
-    };
+  const createSubscription = async (subscriptionData) => {
+    try {
+      const nextBillingDate = calculateNextBillingDate(subscriptionData.billingCycle);
+      
+      const newSubscription = {
+        id: `sub-${Date.now()}`,
+        organization_id: subscriptionData.organizationId,
+        package_id: subscriptionData.packageId,
+        billingCycle: subscriptionData.billingCycle,
+        status: subscriptionData.status || 'active',
+        nextBillingDate,
+        createdAt: new Date().toISOString()
+      };
 
-    setSubscriptions(prev => [...prev, newSubscription]);
-    return newSubscription;
+      setSubscriptions(prev => [...prev, newSubscription]);
+      return newSubscription;
+    } catch (error) {
+      console.error('Error creating subscription:', error);
+      throw error;
+    }
   };
 
-  const updateSubscription = (subId, updates) => {
-    setSubscriptions(prev => prev.map(sub => 
-      sub.id === subId 
-        ? { ...sub, ...updates, updatedAt: new Date().toISOString() }
-        : sub
-    ));
+  const updateSubscription = async (subId, updates) => {
+    try {
+      const nextBillingDate = updates.billingCycle 
+        ? calculateNextBillingDate(updates.billingCycle) 
+        : undefined;
+
+      setSubscriptions(prev => 
+        prev.map(sub => 
+          sub.id === subId 
+            ? { 
+                ...sub, 
+                ...updates,
+                nextBillingDate: nextBillingDate || sub.nextBillingDate,
+                updatedAt: new Date().toISOString()
+              }
+            : sub
+        )
+      );
+    } catch (error) {
+      console.error('Error updating subscription:', error);
+      throw error;
+    }
   };
 
-  const cancelSubscription = (subId) => {
-    updateSubscription(subId, { 
-      status: 'cancelled',
-      cancelledAt: new Date().toISOString()
-    });
+  const cancelSubscription = async (subId) => {
+    try {
+      setSubscriptions(prev => 
+        prev.map(sub => 
+          sub.id === subId 
+            ? { 
+                ...sub, 
+                status: 'cancelled',
+                cancelledAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }
+            : sub
+        )
+      );
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      throw error;
+    }
   };
 
-  const suspendSubscription = (subId) => {
-    updateSubscription(subId, { 
-      status: 'suspended',
-      suspendedAt: new Date().toISOString()
-    });
+  const suspendSubscription = async (subId) => {
+    try {
+      setSubscriptions(prev => 
+        prev.map(sub => 
+          sub.id === subId 
+            ? { 
+                ...sub, 
+                status: 'suspended',
+                suspendedAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }
+            : sub
+        )
+      );
+    } catch (error) {
+      console.error('Error suspending subscription:', error);
+      throw error;
+    }
   };
 
   // Package management functions
-  const createPackage = (packageData) => {
-    const newPackage = {
-      ...packageData,
-      id: `pkg-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      isActive: true
-    };
+  const createPackage = async (packageData) => {
+    try {
+      const newPackage = {
+        id: `pkg-${Date.now()}`,
+        name: packageData.name,
+        description: packageData.description,
+        price: packageData.price,
+        billingCycle: packageData.billingCycle,
+        features: packageData.features,
+        limits: packageData.limits,
+        isActive: packageData.isActive !== false,
+        createdAt: new Date().toISOString()
+      };
 
-    setPackages(prev => [...prev, newPackage]);
-    return newPackage;
+      setPackages(prev => [...prev, newPackage]);
+      return newPackage;
+    } catch (error) {
+      console.error('Error creating package:', error);
+      throw error;
+    }
   };
 
-  const updatePackage = (pkgId, updates) => {
-    setPackages(prev => prev.map(pkg => 
-      pkg.id === pkgId 
-        ? { ...pkg, ...updates, updatedAt: new Date().toISOString() }
-        : pkg
-    ));
+  const updatePackage = async (pkgId, updates) => {
+    try {
+      setPackages(prev => 
+        prev.map(pkg => 
+          pkg.id === pkgId 
+            ? { ...pkg, ...updates, updatedAt: new Date().toISOString() }
+            : pkg
+        )
+      );
+    } catch (error) {
+      console.error('Error updating package:', error);
+      throw error;
+    }
   };
 
-  const deletePackage = (pkgId) => {
-    setPackages(prev => prev.filter(pkg => pkg.id !== pkgId));
+  const deletePackage = async (pkgId) => {
+    try {
+      // Check for subscriptions using this package
+      const packageSubs = subscriptions.filter(sub => 
+        sub.package_id === pkgId && sub.status === 'active'
+      );
+      
+      if (packageSubs.length > 0) {
+        throw new Error('Cannot delete package with active subscriptions. Please migrate or cancel subscriptions first.');
+      }
+
+      setPackages(prev => prev.filter(pkg => pkg.id !== pkgId));
+    } catch (error) {
+      console.error('Error deleting package:', error);
+      throw error;
+    }
   };
 
   // Utility functions
@@ -377,12 +525,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const getUsersByOrganization = (orgId) => {
-    return users.filter(user => user.organizationId === orgId);
-  };
-
   const getOrganizationSubscription = (orgId) => {
-    return subscriptions.find(sub => sub.organizationId === orgId && sub.status === 'active');
+    return subscriptions.find(sub => sub.organization_id === orgId && sub.status === 'active');
   };
 
   const hasPermission = (permission) => {
@@ -394,10 +538,10 @@ export const AuthProvider = ({ children }) => {
   const isWithinLimits = (orgId, limitType, currentUsage) => {
     const subscription = getOrganizationSubscription(orgId);
     if (!subscription) return false;
-
-    const pkg = packages.find(p => p.id === subscription.packageId);
+    
+    const pkg = packages.find(p => p.id === subscription.package_id);
     if (!pkg) return false;
-
+    
     const limit = pkg.limits[limitType];
     if (limit === -1) return true; // unlimited
     return currentUsage < limit;
@@ -409,10 +553,12 @@ export const AuthProvider = ({ children }) => {
     const activeUsers = users.filter(u => u.status === 'active').length;
     const totalOrganizations = organizations.length;
     const activeSubscriptions = subscriptions.filter(s => s.status === 'active').length;
+    const cancelledSubscriptions = subscriptions.filter(s => s.status === 'cancelled').length;
+    
     const monthlyRevenue = subscriptions
       .filter(s => s.status === 'active')
       .reduce((total, sub) => {
-        const pkg = packages.find(p => p.id === sub.packageId);
+        const pkg = packages.find(p => p.id === sub.package_id);
         return total + (pkg?.price || 0);
       }, 0);
 
@@ -423,7 +569,7 @@ export const AuthProvider = ({ children }) => {
       activeSubscriptions,
       monthlyRevenue,
       suspendedUsers: users.filter(u => u.status === 'suspended').length,
-      cancelledSubscriptions: subscriptions.filter(s => s.status === 'cancelled').length
+      cancelledSubscriptions
     };
   };
 
@@ -431,42 +577,36 @@ export const AuthProvider = ({ children }) => {
     // Auth state
     currentUser,
     isLoading,
-
+    authError,
     // Data
     users,
     organizations,
     subscriptions,
     packages,
-
     // Auth functions
     login,
     logout,
-
     // User management
     createUser,
     updateUser,
     suspendUser,
     activateUser,
     deleteUser,
-
     // Organization management
     createOrganization,
     updateOrganization,
     deleteOrganization,
     getUsersByOrganization,
-
     // Subscription management
     createSubscription,
     updateSubscription,
     cancelSubscription,
     suspendSubscription,
     getOrganizationSubscription,
-
     // Package management
     createPackage,
     updatePackage,
     deletePackage,
-
     // Utility functions
     hasPermission,
     isWithinLimits,

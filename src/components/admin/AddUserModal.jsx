@@ -6,7 +6,7 @@ import * as FiIcons from 'react-icons/fi';
 
 const { FiX, FiPlus } = FiIcons;
 
-const AddUserModal = ({ isOpen, onClose }) => {
+const AddUserModal = ({ isOpen, onClose, defaultOrganizationId = null }) => {
   const { createUser, organizations } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -14,22 +14,64 @@ const AddUserModal = ({ isOpen, onClose }) => {
     email: '',
     password: '',
     role: 'end_user',
-    organizationId: '',
-    status: 'active'
+    organizationId: defaultOrganizationId || '',
+    status: 'active',
+    department: '',
+    jobTitle: '',
+    phone: '',
+    notes: ''
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [generatePassword, setGeneratePassword] = useState(true);
+
+  // Update organizationId when defaultOrganizationId changes
+  React.useEffect(() => {
+    if (defaultOrganizationId) {
+      setFormData(prev => ({ ...prev, organizationId: defaultOrganizationId }));
+    }
+  }, [defaultOrganizationId]);
+
+  const generateRandomPassword = () => {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createUser(formData);
+    
+    const userData = {
+      ...formData,
+      password: generatePassword ? generateRandomPassword() : formData.password,
+      mustChangePassword: generatePassword
+    };
+
+    const newUser = createUser(userData);
+    
+    if (generatePassword) {
+      alert(`User created successfully!\n\nTemporary password: ${userData.password}\n\nPlease share this securely with ${formData.firstName} ${formData.lastName}. They will be required to change it on first login.`);
+    }
+
+    // Reset form
     setFormData({
       firstName: '',
       lastName: '',
       email: '',
       password: '',
       role: 'end_user',
-      organizationId: '',
-      status: 'active'
+      organizationId: defaultOrganizationId || '',
+      status: 'active',
+      department: '',
+      jobTitle: '',
+      phone: '',
+      notes: ''
     });
+    
     onClose();
   };
 
@@ -112,19 +154,76 @@ const AddUserModal = ({ isOpen, onClose }) => {
               />
             </div>
 
-            {/* Password */}
+            {/* Password Section */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="generatePassword"
+                  checked={generatePassword}
+                  onChange={(e) => setGeneratePassword(e.target.checked)}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <label htmlFor="generatePassword" className="text-sm font-medium text-gray-700">
+                  Generate secure password automatically (Recommended)
+                </label>
+              </div>
+
+              {!generatePassword && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required={!generatePassword}
+                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Enter password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <SafeIcon icon={showPassword ? FiIcons.FiEyeOff : FiIcons.FiEye} className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {generatePassword && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <SafeIcon icon={FiIcons.FiInfo} className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">Auto-Generated Password</p>
+                      <ul className="space-y-1 text-blue-700">
+                        <li>• A secure 12-character password will be generated</li>
+                        <li>• User will be required to change it on first login</li>
+                        <li>• Password will be displayed after account creation</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Contact Information */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password *
+                Phone Number
               </label>
               <input
-                type="password"
-                name="password"
-                value={formData.password}
+                type="tel"
+                name="phone"
+                value={formData.phone}
                 onChange={handleChange}
-                required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter password"
+                placeholder="+1 (555) 123-4567"
               />
             </div>
 
@@ -166,6 +265,36 @@ const AddUserModal = ({ isOpen, onClose }) => {
               </select>
             </div>
 
+            {/* Job Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Department
+                </label>
+                <input
+                  type="text"
+                  name="department"
+                  value={formData.department}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="e.g., Legal, IP, R&D"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Job Title
+                </label>
+                <input
+                  type="text"
+                  name="jobTitle"
+                  value={formData.jobTitle}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="e.g., IP Paralegal, Patent Attorney"
+                />
+              </div>
+            </div>
+
             {/* Status */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -182,6 +311,21 @@ const AddUserModal = ({ isOpen, onClose }) => {
                 <option value="suspended">Suspended</option>
                 <option value="pending">Pending</option>
               </select>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Notes
+              </label>
+              <textarea
+                name="notes"
+                value={formData.notes}
+                onChange={handleChange}
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Additional notes about the user"
+              />
             </div>
 
             {/* Buttons */}

@@ -4,16 +4,25 @@ import { format } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
 import AddOrganizationModal from './AddOrganizationModal';
 import EditOrganizationModal from './EditOrganizationModal';
+import OrganizationDetailsModal from './OrganizationDetailsModal';
 import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiPlus, FiSearch, FiEdit, FiTrash2, FiBuilding, FiUsers, FiCreditCard } = FiIcons;
+const { 
+  FiPlus, FiSearch, FiEdit, FiTrash2, FiBuilding, FiUsers, 
+  FiCreditCard, FiEye, FiSettings 
+} = FiIcons;
 
 const OrganizationManagement = () => {
-  const { organizations, users, subscriptions, deleteOrganization, getUsersByOrganization, getOrganizationSubscription } = useAuth();
+  const { 
+    organizations, users, subscriptions, deleteOrganization, 
+    getUsersByOrganization, getOrganizationSubscription 
+  } = useAuth();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingOrganization, setEditingOrganization] = useState(null);
+  const [viewingOrganization, setViewingOrganization] = useState(null);
 
   const filteredOrganizations = organizations.filter(org =>
     org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -34,14 +43,10 @@ const OrganizationManagement = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-700';
-      case 'suspended':
-        return 'bg-red-100 text-red-700';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
+      case 'active': return 'bg-green-100 text-green-700';
+      case 'suspended': return 'bg-red-100 text-red-700';
+      case 'pending': return 'bg-yellow-100 text-yellow-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -51,7 +56,7 @@ const OrganizationManagement = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Organization Management</h2>
-          <p className="text-gray-600">Manage law firms and organizations</p>
+          <p className="text-gray-600">Manage law firms and organizations with full user control</p>
         </div>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -105,16 +110,27 @@ const OrganizationManagement = () => {
                       <p className="text-sm text-gray-500">{org.domain || 'No domain'}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  
+                  {/* Action Buttons */}
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => setViewingOrganization(org)}
+                      className="text-gray-400 hover:text-blue-600 p-1 hover:bg-blue-50 rounded"
+                      title="View details and manage users"
+                    >
+                      <SafeIcon icon={FiEye} className="h-4 w-4" />
+                    </button>
                     <button
                       onClick={() => setEditingOrganization(org)}
                       className="text-gray-400 hover:text-primary-600 p-1 hover:bg-primary-50 rounded"
+                      title="Edit organization"
                     >
                       <SafeIcon icon={FiEdit} className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteOrganization(org.id)}
                       className="text-gray-400 hover:text-red-600 p-1 hover:bg-red-50 rounded"
+                      title="Delete organization"
                     >
                       <SafeIcon icon={FiTrash2} className="h-4 w-4" />
                     </button>
@@ -136,6 +152,9 @@ const OrganizationManagement = () => {
                       <span className="text-lg font-semibold text-gray-900">{orgUsers.length}</span>
                     </div>
                     <p className="text-xs text-gray-600">Users</p>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {orgUsers.filter(u => u.status === 'active').length} active
+                    </div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center justify-center mb-1">
@@ -145,6 +164,9 @@ const OrganizationManagement = () => {
                       </span>
                     </div>
                     <p className="text-xs text-gray-600">Subscription</p>
+                    {subscription && (
+                      <div className="text-xs text-gray-500 mt-1">Active</div>
+                    )}
                   </div>
                 </div>
 
@@ -156,6 +178,28 @@ const OrganizationManagement = () => {
                     </p>
                   </div>
                 )}
+
+                {/* Quick Actions */}
+                <div className="flex space-x-2 mb-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setViewingOrganization(org)}
+                    className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium flex items-center justify-center space-x-1"
+                  >
+                    <SafeIcon icon={FiSettings} className="h-4 w-4" />
+                    <span>Manage</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setEditingOrganization(org)}
+                    className="flex-1 px-3 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium flex items-center justify-center space-x-1"
+                  >
+                    <SafeIcon icon={FiEdit} className="h-4 w-4" />
+                    <span>Edit</span>
+                  </motion.button>
+                </div>
 
                 {/* Footer */}
                 <div className="pt-4 border-t border-gray-100">
@@ -174,21 +218,30 @@ const OrganizationManagement = () => {
           <SafeIcon icon={FiBuilding} className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No organizations found</h3>
           <p className="text-gray-600">
-            {searchTerm ? 'Try adjusting your search criteria' : 'Get started by adding your first organization'}
+            {searchTerm 
+              ? 'Try adjusting your search criteria' 
+              : 'Get started by adding your first organization'
+            }
           </p>
         </div>
       )}
 
       {/* Modals */}
-      <AddOrganizationModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+      <AddOrganizationModal 
+        isOpen={showAddModal} 
+        onClose={() => setShowAddModal(false)} 
       />
-
-      <EditOrganizationModal
-        isOpen={!!editingOrganization}
-        onClose={() => setEditingOrganization(null)}
-        organization={editingOrganization}
+      
+      <EditOrganizationModal 
+        isOpen={!!editingOrganization} 
+        onClose={() => setEditingOrganization(null)} 
+        organization={editingOrganization} 
+      />
+      
+      <OrganizationDetailsModal
+        isOpen={!!viewingOrganization}
+        onClose={() => setViewingOrganization(null)}
+        organization={viewingOrganization}
       />
     </div>
   );
